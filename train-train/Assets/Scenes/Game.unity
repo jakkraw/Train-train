@@ -539,6 +539,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575485c4df6c9af47b8819879c464d95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  acceleration_speed: 8
+  decelleration_speed: 7
   parallax: {fileID: 215485541}
   train: {fileID: 913410016}
 --- !u!1 &913410014
