@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class Train : MonoBehaviour {
 
+    public Seat BackSeat;
+
+    public bool hasSeat() {
+        return BackSeat.isEmpty();
+    }
+
+    public void Seat(GameObject passenger)
+    {
+        BackSeat.Place(passenger);
+    }
+
     public float AccelerationSpeed = 8;
     public float DecelerationSpeed = 6;
     public float BreakSpeed = 20;
@@ -23,7 +34,7 @@ public class Train : MonoBehaviour {
         Speed += Time.deltaTime * AccelerationSpeed;
     }
 
-    private void Decelerate()
+    public void Decelerate()
     {
         Speed -= Time.deltaTime * DecelerationSpeed;
     }
@@ -33,9 +44,5 @@ public class Train : MonoBehaviour {
         Speed -= Time.deltaTime * BreakSpeed;
     }
 
-
-    private void Update()
-    {
-        Decelerate();
-    }
+  
 }
