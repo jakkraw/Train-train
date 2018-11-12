@@ -13,11 +13,16 @@ public class Test : MonoBehaviour {
         if (Input.GetKey(KeyCode.LeftArrow)) { train.Break(); }
         if (Input.GetKey(KeyCode.UpArrow)) {
             if (train.hasSeat()) {
-                train.Seat(Instantiate(Resources.Load<GameObject>("Passenger")));
+                train.Seat(Instantiate(Resources.Load<Passenger>("Passenger")));
             }
         }
         if (Input.GetKey(KeyCode.DownArrow)){
-            train.BackSeat.Remove();
+            var l = train.BackSeat.Remove();
+            if(l != null)
+            {
+                Destroy(l.gameObject);
+            }
+            
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -42,11 +47,12 @@ public class Test : MonoBehaviour {
             {
                 if (el.isEmpty())
                 {
-                    el.Place(Instantiate(Resources.Load<GameObject>("Passenger")));
+                    el.Place(Passenger.Spawn());
                 }
                 else
                 {
-                    el.Remove();
+                    var passenger = el.Remove();
+                    Destroy(passenger.gameObject);
                 }
             }
 

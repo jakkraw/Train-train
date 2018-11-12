@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 224790577921547408}
+  - component: {fileID: 114452985016325882}
   - component: {fileID: 222950198788573610}
   - component: {fileID: 114543557198319406}
   m_Layer: 5
@@ -28,6 +29,17 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114452985016325882
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1388914571667370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccbfee11364f36f4393b892757a37d49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114543557198319406
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -47,7 +59,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 461357c5c34f036489c43bb22b26ff33, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fb6c08a14e3b55248a937390b441e9c8, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

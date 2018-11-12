@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Seat : MonoBehaviour
 {
-    public GameObject passenger;
+    private Passenger passenger;
 
     public bool isEmpty() { return passenger == null; }
-    public void Place(GameObject passenger) {
+    public void Place(Passenger passenger) {
+
         passenger.transform.SetParent(transform);
         this.passenger = passenger;
 
@@ -15,8 +16,11 @@ public class Seat : MonoBehaviour
         var my = GetComponent<RectTransform>();
         p.sizeDelta = my.sizeDelta;
         p.position = my.position;
+        p.localScale = my.localScale;
     }
-    public void Remove() {
-        Destroy(passenger);
+    public Passenger Remove() {
+        var tmp = passenger;
+        passenger = null;
+        return tmp;
     }
 }

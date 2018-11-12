@@ -10,7 +10,7 @@ public class Train : MonoBehaviour {
         return BackSeat.isEmpty();
     }
 
-    public void Seat(GameObject passenger)
+    public void Seat(Passenger passenger)
     {
         BackSeat.Place(passenger);
     }
@@ -29,18 +29,15 @@ public class Train : MonoBehaviour {
         }
     }
 
-    public void Accelerate()
-    {
+    public void Accelerate() {
         Speed += Time.deltaTime * AccelerationSpeed;
     }
 
-    public void Decelerate()
-    {
+    public void Decelerate() {
         Speed -= Time.deltaTime * DecelerationSpeed;
     }
 
-    public void Break()
-    {
+    public void Break() {
         Speed -= Time.deltaTime * BreakSpeed;
     }
 

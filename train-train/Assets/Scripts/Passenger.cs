@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
 
 public class Passenger : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {    
+    public static Passenger Spawn()
+    {
+        var instance = Instantiate(Resources.Load<GameObject>("Passenger"));
+        instance.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Bee");
+        return instance.GetComponent<Passenger>();
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
 }
