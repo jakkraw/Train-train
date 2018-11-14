@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Station
+  - Train
+  - Station Seat
+  - Train Seat
   layers:
   - Default
   - TransparentFX

@@ -7,60 +7,69 @@ public class World : MonoBehaviour {
     public Train train;
     public Environment environment;
 
-    private bool InputAccelerateTrain()
+    private void Start()
     {
-        return Input.touchCount == 1;
-    }
-
-    private bool InputBreakTrain()
-    {
-        return Input.touchCount == 2;
+        train.BackSeat.Place(Passenger.Spawn());
     }
 
     // Update is called once per frame
     void Update () {
         HandleInput();
-
+        MoveWorld();
         train.Decelerate();
-        if (InputAccelerateTrain()) {  train.Accelerate(); }
-        if (InputBreakTrain()) { train.Break(); }
-        environment.SetMoveSpeed(-train.Speed);
-
-        foreach(GameObject station in GameObject.FindGameObjectsWithTag("Station"))
-        {
-            station.transform.Translate(Time.deltaTime * - train.Speed, 0.0f, 0.0f);
-        }
-
     }
 
+    void MoveWorld()
+    {
+        environment.SetMoveSpeed(-train.Speed);
+        foreach (GameObject station in GameObject.FindGameObjectsWithTag("Station"))
+        {
+            station.transform.Translate(Time.deltaTime * -train.Speed, 0.0f, 0.0f);
+        }
+    }
+
+    void SwapSeat(Seat a, Seat b)
+    {
+        var p1 = a.Remove();
+        var p2 = b.Remove();
+        if(p2) a.Place(p2);
+        if(p1) b.Place(p1);
+    }
+
+    Station ClosestStation()
+    {
+        var a = GameObject.FindGameObjectsWithTag("Station");
+        return a[0].GetComponent<Station>();
+    }
 
     void HandleInput()
     {
         if (Input.touchCount < 1) return;
 
         RaycastHit hit;
-        if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.touches[0].position), out hit, 500)) { return; }
+        if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.touches[0].position), out hit, 500)) {
+            train.Break();
+            return;
+        }
 
         var gameObject = hit.collider.gameObject;
-
+        
         if(gameObject.name == "Train") {
             gameObject.GetComponent<Train>().Accelerate();
         }
 
-        if (gameObject.name == "Seat")
+        if (gameObject.CompareTag("Train Seat"))
         {
             var seat = gameObject.GetComponent<Seat>();
-            if (seat.isEmpty())
-            {
-                seat.Place(Passenger.Spawn());
-            }
-            else
-            {
-                var passenger = seat.Remove();
-                Destroy(passenger.gameObject);
-            }
+            if(!seat.isEmpty()) SwapSeat(ClosestStation().s1, seat);
         }
-   
+
+        if (gameObject.CompareTag("Station Seat"))
+        {
+            var seat = gameObject.GetComponent<Seat>();
+            if (!seat.isEmpty()) SwapSeat(train.BackSeat, seat);
+        }
+
     }
 
 }

@@ -8,7 +8,7 @@ public class Seat : MonoBehaviour
 
     public bool isEmpty() { return passenger == null; }
     public void Place(Passenger passenger) {
-
+ 
         passenger.transform.SetParent(transform);
         this.passenger = passenger;
 
