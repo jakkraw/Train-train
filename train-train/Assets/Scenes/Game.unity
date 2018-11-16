@@ -977,7 +977,7 @@ MonoBehaviour:
   FrontSeat: {fileID: 685107350}
   DriverSeat: {fileID: 165301810}
   AccelerationSpeed: 13
-  DecelerationSpeed: 6
+  DecelerationSpeed: 8
   BreakSpeed: 7
   SpeedLimit: 12
 --- !u!65 &913410018
