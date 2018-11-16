@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Train : MonoBehaviour {
 
-    public Seat BackSeat;
+    public Seat BackSeat, FrontSeat, DriverSeat;
 
     public bool hasSeat() {
         return BackSeat.isEmpty();
@@ -13,6 +13,14 @@ public class Train : MonoBehaviour {
     public void Seat(Passenger passenger)
     {
         BackSeat.Place(passenger);
+    }
+
+    public Seat freeSeat()
+    {
+        if (BackSeat.isEmpty()) return BackSeat;
+        if (FrontSeat.isEmpty()) return FrontSeat;
+        if (DriverSeat.isEmpty()) return DriverSeat;
+        return null;
     }
 
     public float AccelerationSpeed = 8;

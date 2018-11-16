@@ -21,20 +21,4 @@ public class FreeParallaxDemo : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-        if (parallax != null)
-        {
-            if (Input.GetKey(KeyCode.LeftArrow))
-            {
-                parallax.Speed += 15.0f;
-            }
-            else if (Input.GetKey(KeyCode.RightArrow))
-            {
-                parallax.Speed -= 15.0f;
-            }
-        }
-    }
 }
