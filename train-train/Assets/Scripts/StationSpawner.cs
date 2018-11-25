@@ -9,9 +9,11 @@ public class StationSpawner : MonoBehaviour {
         var instance = Instantiate(Resources.Load<GameObject>("Station"));
         var station = instance.GetComponent<Station>();
 
-        if(Random.value < .7) { station.s1.Place(Passenger.SpawnRandom()); }
-        if (Random.value < .7) { station.s2.Place(Passenger.SpawnRandom()); }
-        if (Random.value < .2) { station.s3.Place(Passenger.SpawnRandom()); }
+        foreach(var seat in station.seats)
+        {
+            if (Random.value < .7) { seat.Place(Passenger.SpawnRandom()); }
+        }
+
         return instance.GetComponent<Station>();
     }
 

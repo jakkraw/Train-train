@@ -9,6 +9,7 @@ TagManager:
   - Station Seat
   - Train Seat
   - Passenger
+  - Accelerate
   layers:
   - Default
   - TransparentFX

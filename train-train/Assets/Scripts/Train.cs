@@ -1,26 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Train : MonoBehaviour {
 
-    public Seat BackSeat, FrontSeat, DriverSeat;
+    public List<Seat> seats;
 
-    public bool hasSeat() {
-        return BackSeat.isEmpty();
-    }
-
-    public void Seat(Passenger passenger)
-    {
-        BackSeat.Place(passenger);
-    }
-
-    public Seat freeSeat()
-    {
-        if (BackSeat.isEmpty()) return BackSeat;
-        if (FrontSeat.isEmpty()) return FrontSeat;
-        if (DriverSeat.isEmpty()) return DriverSeat;
-        return null;
+    public Seat FreeSeat() {
+        return seats.Find(s => s.isEmpty());
     }
 
     public float AccelerationSpeed = 8;
