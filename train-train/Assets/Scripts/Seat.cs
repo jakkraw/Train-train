@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Seat : MonoBehaviour
 {
-    private Passenger passenger;
+    public Passenger passenger;
+    public Text text;
 
     public bool isEmpty() { return passenger == null; }
     public void Place(Passenger passenger) {
@@ -23,4 +25,14 @@ public class Seat : MonoBehaviour
         passenger = null;
         return tmp;
     }
+
+    private void Update()
+    {
+        if (text)
+        {
+            if (passenger) { text.text = passenger.stationNumber.ToString(); }
+            else { text.text = ""; }
+        }
+    }
+
 }
