@@ -58,7 +58,9 @@ public class World : MonoBehaviour {
 
     void SpawnStations()
     {
-        if(Vector3.Distance(train.transform.position, ClosestStation().transform.position) > _newStationDistance)
+        var trainPos = train.transform.position;
+        var stationPos = ClosestStation().transform.position;
+        if (Vector3.Distance(trainPos, stationPos) > _newStationDistance && trainPos.x > stationPos.x)
         {
             Destroy(ClosestStation().gameObject);
             StationSpawner.Spawn();
