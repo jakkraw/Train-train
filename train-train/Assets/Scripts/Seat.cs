@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Animations;
 
 public class Seat : MonoBehaviour
 {
+    public Animator anim;
+    public BoxCollider Collider;
     public Passenger passenger;
-    public Text text;
 
     public bool isEmpty() { return passenger == null; }
     public void Place(Passenger passenger) {
@@ -16,9 +18,10 @@ public class Seat : MonoBehaviour
 
         var p = passenger.GetComponent<RectTransform>();
         var my = GetComponent<RectTransform>();
-        p.sizeDelta = my.sizeDelta;
+        //p.sizeDelta = my.sizeDelta;
+        //p.anchoredPosition = my.anchoredPosition;
         p.position = my.position;
-        p.localScale = my.localScale;
+        //p.localScale = my.localScale;
     }
     public Passenger Remove() {
         var tmp = passenger;
@@ -26,12 +29,31 @@ public class Seat : MonoBehaviour
         return tmp;
     }
 
-    private void Update()
+    public void leaveSeat()
     {
-        if (text)
+        if (passenger)
         {
-            if (passenger) { text.text = passenger.stationNumber.ToString(); }
-            else { text.text = ""; }
+            StartCoroutine(Leave());
+        } 
+    }
+
+
+    private IEnumerator Leave()
+    {
+        var anim = passenger.GetComponent<Animator>();
+        anim.Play("passenger_leave");
+        var go = passenger.gameObject;
+        passenger = null;
+        yield return new WaitForSeconds(5);
+        Destroy(go);
+    }
+
+    public void setActive(bool active)
+    {
+        if (passenger)
+        {
+            Collider.enabled = active;
+            passenger.setActive(active);
         }
     }
 

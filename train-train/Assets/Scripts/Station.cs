@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class Station : MonoBehaviour {
     public int number;
-    public Text stationNumber;
+    public Symbol symbol;
     public List<Seat> seats;
+    public Transform middle;
 
     public Seat FreeSeat() {
         return seats.Find(s => s.isEmpty());
@@ -14,12 +15,10 @@ public class Station : MonoBehaviour {
 
     private void Update()
     {
-       var passengersToLeave = seats.FindAll(s => s.passenger && s.passenger.stationNumber == number);
+       var passengersToLeave = seats.FindAll(s => s.passenger && s.passenger.symbol.symbol_ == symbol.symbol_);
        foreach(var seat in passengersToLeave)
        {
-            var passenger = seat.passenger;
-            Destroy(passenger.gameObject);
-            seat.passenger = null;
+            seat.leaveSeat();
         }
         
     }

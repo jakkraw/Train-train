@@ -10,12 +10,7 @@ public class World : MonoBehaviour {
     public Train train;
     public Environment environment;
     float _newStationDistance = 100;
-
-    private void Start()
-    {
-        foreach(var seat in train.seats)
-            if (Random.value < .4) seat.Place(Passenger.SpawnRandom());
-    }
+    bool enablePassengerMove = false;
 
     void Update () {
         SpawnStations(); 
@@ -24,27 +19,11 @@ public class World : MonoBehaviour {
         train.Decelerate();
 
         var rect = ClosestStation().GetComponent<BoxCollider2D>().bounds;
-        var enablePassengerMove = train.Speed == 0 && train.seats.All(seat => rect.Contains(seat.transform.position));
+        enablePassengerMove = train.seats.All(seat => rect.Contains(seat.transform.position));
 
-        foreach (Seat seat in FindObjectsOfType<Seat>())
-        {
-            var collider = seat.GetComponent<BoxCollider>();
-            collider.enabled = enablePassengerMove;
+        foreach (Seat seat in FindObjectsOfType<Seat>()) {
+            seat.setActive(train.Speed == 0 && enablePassengerMove);
         }
-
-        foreach (Passenger passenger in FindObjectsOfType<Passenger>())
-        {
-            var image = passenger.GetComponent<Image>();
-            var color = image.color;
-            color.a = enablePassengerMove ? 1f : 0.5f;
-            image.color = color;
-        }
-
-        var timage = train.GetComponent<SpriteRenderer>();
-        var tcolor = timage.color;
-        tcolor.a = enablePassengerMove ? 0.5f : 1f;
-        timage.color = tcolor;
-
     }
 
     void MoveWorld()
@@ -59,12 +38,13 @@ public class World : MonoBehaviour {
     void SpawnStations()
     {
         var trainPos = train.transform.position;
-        var stationPos = ClosestStation().transform.position;
+        var station = ClosestStation();
+        var stationPos = station.transform.position;
         if (Vector3.Distance(trainPos, stationPos) > _newStationDistance && trainPos.x > stationPos.x)
         {
-            Destroy(ClosestStation().gameObject);
+            Destroy(station.gameObject);
             StationSpawner.Spawn();
-            _newStationDistance = Random.Range(30, 130);
+            _newStationDistance = Random.Range(30, 40);
         }
 
 
@@ -82,12 +62,44 @@ public class World : MonoBehaviour {
     Station ClosestStation()
     {
         var a = GameObject.FindGameObjectsWithTag("Station");
+        if(a.Length == 0) {
+            _newStationDistance = Random.Range(30, 40);
+            return StationSpawner.Spawn();
+        }
         return a[0].GetComponent<Station>();
     }
 
     void HandleInput()
     {
-        if (Input.touchCount < 1) return;
+
+
+        if (Input.touchCount < 1)
+        {
+            if(train.Speed != 0)
+            {
+                var trainPos = train.middle.position;
+                var station = ClosestStation();
+                var stationPos = station.middle.position;
+                if (trainPos.x < stationPos.x)
+                {
+                    var k = Vector3.Distance(train.middle.position, station.middle.position) / 10.0f;
+                    if (k < 2.5)
+                    {
+                        train.Break();
+                        if (train.Speed < 4) train.Speed = 4;
+                        if (k < 0.1)
+                        {
+                            if (enablePassengerMove)
+                            {
+                                train.Speed = 0;
+                            }
+                        }
+                    }
+                }
+            }   
+            return;
+        }
+
 
         RaycastHit hit;
         if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.touches[0].position), out hit, 500)) {

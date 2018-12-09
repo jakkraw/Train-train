@@ -6,6 +6,7 @@ using System.Linq;
 public class Train : MonoBehaviour {
 
     public List<Seat> seats;
+    public Transform middle;
 
     public Seat FreeSeat() {
         return seats.Find(s => s.isEmpty());
