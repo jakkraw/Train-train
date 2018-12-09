@@ -4,45 +4,26 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 
-
-public class PassegersTextures
-{
-    static List<Texture2D> passengers;
-
-    public static void load()
-    {
-        passengers = new List<Texture2D>();
-
-        var strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
-        foreach (var img in strings)
-        {
-            passengers.Add(Resources.Load<Texture2D>(img));
-        }
-    }
-
-    public static Texture2D getRandomPassengerTexture()
-    {
-        return passengers[Random.Range(0, passengers.Count)];
-    }
-
-}
-
-
 public class Passenger : MonoBehaviour {
 
     public RawImage image;
     public Symbol symbol;
-    public static Passenger SpawnRandom()
+    public static Passenger GetPassenger(Symbol_ s, Texture2D t)
     {
-        var destination = Symbols.randomPossibleDestination();
-        if (destination == null) { return null; }
+        var p = Instantiate(Resources.Load<GameObject>("Passenger")).GetComponent<Passenger>();
+        p.setTexture(t);
+        p.setDestination(s);
+        return p;
+    }
 
-        var instance = Instantiate(Resources.Load<GameObject>("Passenger"));
-        var passenger = instance.GetComponent<Passenger>();
-        passenger.image.texture = PassegersTextures.getRandomPassengerTexture();
+    public void setDestination(Symbol_ s)
+    {
+        symbol.setSymbol(s);
+    }
 
-        passenger.symbol.setSymbol(destination);
-        return passenger;
+    public void setTexture(Texture2D t)
+    {
+        image.texture = t;
     }
 
     public void setActive(bool active)

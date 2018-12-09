@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
 
 public class Train : MonoBehaviour {
 
     public List<Seat> seats;
     public Transform middle;
+    public RawImage driver;
 
     public Seat FreeSeat() {
         return seats.Find(s => s.isEmpty());

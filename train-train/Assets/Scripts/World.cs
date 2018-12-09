@@ -3,14 +3,102 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
-public class World : MonoBehaviour {
+public class Level
+{
+    public static Profile profile;
 
+    static int currentIndex;
+    static List<Symbol_> symbols;
+
+    public static void set(Profile p)
+    {
+        profile = p;
+        currentIndex = 0;
+        symbols = p.symbols;
+    }
+
+    public static Symbol_ getNextStationSymbol()
+    {
+        if (currentIndex >= symbols.Count) { return null; }
+
+        var symbol = symbols[currentIndex++];
+
+        return symbol;
+    }
+
+    public static Symbol_ getRandomPossibleDestination()
+    {
+        if (currentIndex >= symbols.Count) { return null; }
+        var destinations = symbols.GetRange(currentIndex, symbols.Count - currentIndex);
+        return destinations[Random.Range(0, destinations.Count)];
+    }
+
+    public static Texture2D getRandomPassengerTexture()
+    {
+        return profile.passengers[Random.Range(0, profile.passengers.Count)];
+    }
+
+    public static Passenger getNextPassenger()
+    {
+        var t = getRandomPassengerTexture();
+        if (t == null) return null;
+
+        var d = getRandomPossibleDestination();
+        if (d == null) return null;
+
+        return Passenger.GetPassenger(d, t);
+    }
+
+    public static Station spawnNextStation()
+    {
+        var nextSymbol = getNextStationSymbol();
+        if (nextSymbol == null) return null;
+      
+        var newstation = Station.Spawn(nextSymbol);
+
+        foreach (var seat in newstation.seats)
+        {
+            if(Random.value < 0.4)
+            {
+                var p = getNextPassenger();
+                if (p != null)
+                {
+                    seat.Place(p);
+                }
+            }
+           
+        }
+
+        return newstation;
+    }
+
+}
+
+
+public class World : MonoBehaviour {
+    public Station firstStation;
     public Train train;
     public Environment environment;
+    bool quit = false;
     float _newStationDistance = 100;
     bool enablePassengerMove = false;
+
+    private void Start()
+    {
+        Level.set(Data.currentProfile);
+
+        train.driver.texture = Level.profile.driver;
+
+        foreach (var seat in firstStation.seats)
+        {
+            var p = Level.getNextPassenger();
+            if(p != null)
+              seat.Place(p);
+        }
+    }
 
     void Update () {
         SpawnStations(); 
@@ -35,6 +123,21 @@ public class World : MonoBehaviour {
         }
     }
 
+    public void quitGame()
+    {
+         StartCoroutine(removeTrain());
+    }
+
+
+    private IEnumerator removeTrain()
+    {
+        var anim = train.GetComponent<Animator>();
+        anim.Play("train_leave");
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene("Menu");
+
+    }
+
     void SpawnStations()
     {
         var trainPos = train.transform.position;
@@ -43,11 +146,15 @@ public class World : MonoBehaviour {
         if (Vector3.Distance(trainPos, stationPos) > _newStationDistance && trainPos.x > stationPos.x)
         {
             Destroy(station.gameObject);
-            StationSpawner.Spawn();
-            _newStationDistance = Random.Range(30, 40);
+            var newStation = Level.spawnNextStation();
+            if(newStation == null && !quit)
+            {
+                quit = true;
+                quitGame();
+                train.GetComponent<Animator>().Play("train_leave");
+            }
         }
-
-
+            _newStationDistance = Random.Range(30, 40);
     }
 
     void SwapSeat(Seat a, Seat b)
@@ -62,10 +169,6 @@ public class World : MonoBehaviour {
     Station ClosestStation()
     {
         var a = GameObject.FindGameObjectsWithTag("Station");
-        if(a.Length == 0) {
-            _newStationDistance = Random.Range(30, 40);
-            return StationSpawner.Spawn();
-        }
         return a[0].GetComponent<Station>();
     }
 
@@ -117,14 +220,15 @@ public class World : MonoBehaviour {
         if (gameObject.CompareTag("Train Seat"))
         {
             var seat = gameObject.GetComponent<Seat>();
-            if(!seat.isEmpty()) SwapSeat(ClosestStation().FreeSeat(), seat);
+            var sseat = ClosestStation().FreeSeat();
+            if (!seat.isEmpty() && !sseat.blocked) SwapSeat(sseat, seat);
         }
 
         if (gameObject.CompareTag("Station Seat"))
         {
             var seat = gameObject.GetComponent<Seat>();
             var train_seat = train.FreeSeat();
-            if(train_seat) { SwapSeat(train_seat, seat); }
+            if(train_seat && !seat.blocked) { SwapSeat(train_seat, seat); }
         }
 
     }

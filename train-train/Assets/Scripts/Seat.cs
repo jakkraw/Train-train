@@ -6,11 +6,11 @@ using UnityEngine.Animations;
 
 public class Seat : MonoBehaviour
 {
-    public Animator anim;
     public BoxCollider Collider;
     public Passenger passenger;
+    public bool blocked = false;
 
-    public bool isEmpty() { return passenger == null; }
+    public bool isEmpty() { return passenger == null && !blocked; }
     public void Place(Passenger passenger) {
  
         passenger.transform.SetParent(transform);
@@ -44,8 +44,10 @@ public class Seat : MonoBehaviour
         anim.Play("passenger_leave");
         var go = passenger.gameObject;
         passenger = null;
-        yield return new WaitForSeconds(5);
+        blocked = true;
+        yield return new WaitForSeconds(3);
         Destroy(go);
+        blocked = false;
     }
 
     public void setActive(bool active)

@@ -7,12 +7,12 @@ public class MainMenu : MonoBehaviour {
 
     public void onPlayClick()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene("Game");
     }
 
     public void onSettingsClick()
     {
-        SceneManager.LoadScene( SceneManager.GetActiveScene().buildIndex + 2 );
+        SceneManager.LoadScene("Settings");
     }
 
 }
