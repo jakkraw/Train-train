@@ -12,7 +12,7 @@ public class MainMenu : MonoBehaviour {
 
     public void onSettingsClick()
     {
-        SceneManager.LoadScene( SceneManager.GetActiveScene().buildIndex + 2 );
+        SceneManager.LoadScene( SceneManager.GetActiveScene().buildIndex + 3 );
     }
 
 }
