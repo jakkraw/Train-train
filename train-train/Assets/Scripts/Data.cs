@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using System.IO;                                                   
+using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class Symbol_
 {
@@ -60,53 +62,47 @@ public class Profile
 }
 
 
+//Klasa zapisywalna do pliku - lista profili oraz informacja o obecnym profilu
+[Serializable]
+public class ProfileList
+{
+    public List<Profile> Profiles;
+}
+
 public class Data
 {
+    //static Data()
+    //{
+    //    currentProfile = Profile.testProfile();
+    //}    
+
     static Data()
     {
-        currentProfile = Profile.testProfile();
-    }    
+        //ścieżka pliku z profilami
+        currentProfile = Profile.testProfile(); //tymczasowo tutaj, potem do zmiany
+        string destination = Application.dataPath + "/StreamingAssets/profiles.bin";
+        //Debug.Log("Start!");
+        BinaryFormatter bf = new BinaryFormatter();
 
+        //if (File.Exists(destination))
+        //{
+        //    Debug.Log("Wczytano!");
+        //    FileStream file = File.OpenRead(destination);
+        //    ProfileList data = (ProfileList)bf.Deserialize(file);
+        //    file.Close();
+        //    currentProfile = data.Profiles[0];
+        //}
+        //else
+        //{
+        //    FileStream file = File.Create(destination);
+        //    Debug.Log("Stworzony");
+        //    All_Profiles.Profiles.Add(currentProfile);
+        //    bf.Serialize(file, All_Profiles);
+        //    file.Close();
+        //}
+    }
 
-    public static string choosenProfile;
     public static Profile currentProfile;
-    private readonly string gameDataProjectFilePath = "/StreamingAssets/";
+    public static ProfileList All_Profiles;
 
-
-
-    //Ładowanie danych z zapisanego pliku - do reimplementacji zgodnie z rozmową z 7.12.2018
-    private Profile LoadProfileData()
-    {
-        if (!choosenProfile.Contains("profile")) choosenProfile = "profileA.json"; //W wypadku, gdy nie ma wybranego profilu, domyslny to profileA
-        string filePath = Application.dataPath + gameDataProjectFilePath + choosenProfile;
-        Profile profile;
-
-        if (File.Exists(filePath))
-        {
-            string dataAsJson = File.ReadAllText(filePath);
-            currentProfile = JsonUtility.FromJson<Profile>(dataAsJson);
-        }
-        else
-        {
-            profile = new Profile
-            {
-                trainSpeed = 0,
-                points = "Disable",
-                doesEnd = false
-            };
-        }
-        return currentProfile;
-    }
-
-
-    //Zapisywanie do pliku - do reimplementacji zgodnie z rozmową z 7.12.2018
-    private void SaveProfileData()
-    {
-
-        string dataAsJson = JsonUtility.ToJson(currentProfile);
-
-        string filePath = Application.dataPath + gameDataProjectFilePath + choosenProfile;
-        File.WriteAllText(filePath, dataAsJson);
-
-    }
 }
