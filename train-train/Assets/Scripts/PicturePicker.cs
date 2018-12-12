@@ -8,14 +8,27 @@ public class PicturePicker : MonoBehaviour {
 
     public GameObject imageTemplate;
     public GameObject selectedCounterTextBox;
+    public string[] addedImages;
+    public string[] selectedImages;
+
+    private float numOfColumns; // float just for less casting later
 
 	// Use this for initialization
 	void Start () {
+        numOfColumns = 5.0f;
+        float spacingX = GetComponent<GridLayoutGroup>().spacing.x;
+        float cellWidth = (float)Screen.width - (numOfColumns+1) * spacingX / numOfColumns;
+        float additionalPadding = (cellWidth - (int)cellWidth) * (numOfColumns+1);
+        
+        GetComponent<GridLayoutGroup>().cellSize = new Vector2((int)cellWidth, (int)cellWidth);
+        GetComponent<GridLayoutGroup>().padding.left  = (int) (spacingX + additionalPadding / 2.0f);
+        GetComponent<GridLayoutGroup>().padding.right = (int) (spacingX + additionalPadding / 2.0f);
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        //HandlePictureSelect(Data.currentProfile.);
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 
@@ -72,5 +85,10 @@ public class PicturePicker : MonoBehaviour {
         int result; int.TryParse( text.text, out result );
         result += paths.Length;
         text.text = result.ToString();
+    }
+
+    private void Load()
+    {
+       
     }
 }
