@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Settings.unity
     guid: ac15e977783a34d439f00fa6a1e94d25
+  - enabled: 1
+    path: Assets/Scenes/PicturePicker.unity
+    guid: ec85f43698399a344a04868de37c6aa1
   m_configObjects: {}
