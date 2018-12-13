@@ -30,12 +30,17 @@ public class Profile
 {
     //Texture2D Nie może być serializowane
     [NonSerialized]
-    public Texture2D driver;
+    public List<Texture2D> drivers;
+    [NonSerialized]
+    public Texture2D selectedDriver;
+    [NonSerialized]
+    public List<Texture2D> passengers;
+    [NonSerialized]
+    public List<Texture2D> selectedPassengers;
     [NonSerialized]
     public List<Symbol_> symbols;
     [NonSerialized]
-    public List<Texture2D> passengers;
-
+    public List<Symbol_> selectedSymbols;
 
     public string driver_string;
     public List<String> passengers_strings;
@@ -51,38 +56,30 @@ public class Profile
         {
             this.passengers.Add(Resources.Load<Texture2D>(img));
         }
+        this.selectedPassengers = new List<Texture2D>();
+        this.selectedPassengers.AddRange( this.passengers );
 
-        this.driver = Resources.Load<Texture2D>(this.driver_string);
+        this.drivers = new List<Texture2D>();
+        this.drivers.Add( Resources.Load<Texture2D>(this.driver_string) );
+        this.selectedDriver = drivers[0];
 
         this.symbols = new List<Symbol_>();
         for (int i = 1; i <= 7; i++)
         {
             this.symbols.Add(new Symbol_(i.ToString()));
         }
+        this.selectedSymbols = new List<Symbol_>();
+        this.selectedSymbols.AddRange( symbols );
     }
 
     public static Profile testProfile()
     {
         var p = new Profile();
-        p.passengers = new List<Texture2D>();
-        var strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
-        foreach (var img in strings)
-        {
-            p.passengers.Add(Resources.Load<Texture2D>(img));
-        }
-
+        p.passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
+        p.driver_string = "Images/man";
         p.trainSpeed = 20;
         p.doesEnd = true;
-
-        p.symbols = new List<Symbol_>();
-        for (int i = 1; i <= 7; i++)
-        {
-            p.symbols.Add(new Symbol_(i.ToString()));
-        }
-
-        p.driver = Resources.Load<Texture2D>("Images/man");
-
-
+        p.ReconstructProfile();
         return p;
     }
 }

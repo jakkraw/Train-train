@@ -90,7 +90,7 @@ public class World : MonoBehaviour {
     {
         Level.set(Data.currentProfile);
 
-        train.driver.texture = Level.profile.driver;
+        train.driver.texture = Level.profile.selectedDriver;
 
         foreach (var seat in firstStation.seats)
         {
