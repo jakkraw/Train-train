@@ -15,4 +15,9 @@ public class MainMenu : MonoBehaviour {
         SceneManager.LoadScene("Settings");
     }
 
+    void Start()
+    {
+        Debug.Log("[DEBUG: trainSpeedValue at MainMenu open is " + Data.currentProfile.trainSpeed + "]");
+    }
+
 }

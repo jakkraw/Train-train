@@ -77,7 +77,7 @@ public class Profile
         var p = new Profile();
         p.passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
         p.driver_string = "Images/man";
-        p.trainSpeed = 20;
+        p.trainSpeed = 10;
         p.doesEnd = true;
         p.ReconstructProfile();
         return p;
@@ -120,8 +120,40 @@ public class ProfileList
     //}
 }
 
+
+
+
 public class Data
-{    
+{
+
+    void Start()
+    {
+        //ścieżka pliku z profilami
+        currentProfile = Profile.testProfile(); //tymczasowo tutaj, potem do zmiany
+        string destination = Application.dataPath + "/profilesAG.bin";
+        BinaryFormatter bf = new BinaryFormatter();
+
+        //if (File.Exists(destination))
+        //{
+        //FileStream file = File.OpenRead(destination);
+        //Debug.Log("A");
+        //ProfileList dataFromFile = (ProfileList)bf.Deserialize(file);
+        //Debug.Log("B");
+        //file.Close();
+        //All_Profiles.profiles = dataFromFile.profiles;
+        //currentProfile = All_Profiles.profiles[0];
+        //currentProfile.ReconstructProfile();
+        //}
+        //else
+        //{
+        FileStream file = File.Create(destination);
+        var p_list = new ProfileList();
+        p_list.profiles.Insert(0, currentProfile); //profilelist wjechal pusty
+        bf.Serialize(file, p_list);
+        file.Close();
+        Debug.Log("Profile files were created.");
+        //}
+    }
 
     static Data()
     {
