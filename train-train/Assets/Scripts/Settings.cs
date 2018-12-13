@@ -8,6 +8,7 @@ public class Settings : MonoBehaviour
 {
 
     public Slider trainSpeedSlider;
+    public Toggle doesGameEndToogle;
 
     public void onBackClick()
     {
@@ -20,15 +21,21 @@ public class Settings : MonoBehaviour
         Data.currentProfile.trainSpeed = newValue;
     }
 
+    public void OnToggleDoesGameEndClick(bool newValue)
+    {
+        Data.currentProfile.doesEnd = newValue;
+        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
+    }
+
     void Start()
     {
         // Try to find the desired GameObject.
         // This will only find active GameObjects in the scene.
-        GameObject temp = GameObject.Find("Slider-TrainSpeed");
-        if (temp != null)
+        GameObject trainSpeedSlider_Object = GameObject.Find("Slider-TrainSpeed");
+        if (trainSpeedSlider_Object != null)
         {
             // Get the Slider Component
-            trainSpeedSlider = temp.GetComponent<Slider>();
+            trainSpeedSlider = trainSpeedSlider_Object.GetComponent<Slider>();
 
             // If a Slider Component was found on the GameObject.
             if (trainSpeedSlider != null)
@@ -41,7 +48,7 @@ public class Settings : MonoBehaviour
             }
             else
             {
-                Debug.LogError("[" + temp.name + "] - Does not contain a Slider Component!");
+                Debug.LogError("[" + trainSpeedSlider_Object.name + "] - Does not contain a Slider Component!");
             }
 
         }
@@ -50,5 +57,31 @@ public class Settings : MonoBehaviour
             Debug.LogError("Could not find an active GameObject named Slider-TrainSpeed!");
         }
 
+
+        GameObject doesGameEndToogle_Object = GameObject.Find("Game-ends-toggle");
+        if (doesGameEndToogle_Object != null)
+        {
+            // Get the Slider Component
+            doesGameEndToogle = doesGameEndToogle_Object.GetComponent<Toggle>();
+
+            // If a Slider Component was found on the GameObject.
+            if (doesGameEndToogle != null)
+            {
+                // This is a Conditional Statement. 
+                // Basically if volumeLevel isn't null, 
+                // then it uses it's value, 
+                // otherwise it uses the DefaultVolumeLevel that we've set above.
+                doesGameEndToogle.isOn = Data.currentProfile.doesEnd;
+            }
+            else
+            {
+                Debug.LogError("[" + doesGameEndToogle.name + "] - Does not contain a Toggle Component!");
+            }
+
+        }
+        else
+        {
+            Debug.LogError("Could not find an active GameObject named Game-ends-toggle!");
+        }
     }
 }
