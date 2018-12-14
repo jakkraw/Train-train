@@ -86,60 +86,39 @@ public class PicturePicker : MonoBehaviour {
         }
     }
 
-    public bool HandleSelectRequest(Texture2D texture)
+    public bool isSelected(Texture2D texture)
     {
-        bool isAlreadySelected;
         switch( Settings.picturePickerTarget )
         {
             case PicturePickerTarget.DRIVER:
-                isAlreadySelected = Data.currentProfile.selectedDriver.Equals( texture );
-                break;
+                return Data.currentProfile.selectedDriver.Equals( texture );
 
             case PicturePickerTarget.PASSENGER:
-                isAlreadySelected = Data.currentProfile.selectedPassengers.Contains( texture );
-                break;
+                return Data.currentProfile.selectedPassengers.Contains( texture );
 
             case PicturePickerTarget.STATION_SYMBOL:
                 //TODO
-                isAlreadySelected = false;
-                break;
+                return false;
 
             case PicturePickerTarget.NOT_SELECTED:
             default:
-                isAlreadySelected = true;
                 Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
                 Debug.Assert( false );
                 SceneManager.LoadScene( "Settings" );
-                break;
+                return false;
         }
-        if( isAlreadySelected )
+    }
+
+    public bool HandleSelectRequest(Texture2D texture)
+    {
+        if( isSelected(texture) )
         {
-            switch( Settings.picturePickerTarget )
-            {
-                case PicturePickerTarget.DRIVER:
-                    Data.currentProfile.selectedDriver = null;
-                    break;
-
-                case PicturePickerTarget.PASSENGER:
-                    Data.currentProfile.selectedPassengers.Remove( texture );
-                    break;
-
-                case PicturePickerTarget.STATION_SYMBOL:
-                    //TODO
-                    break;
-
-                case PicturePickerTarget.NOT_SELECTED:
-                default:
-                    Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                    Debug.Assert( false );
-                    SceneManager.LoadScene( "Settings" );
-                    break;
-            }
-
+            RemoveSelectedFromProfile( texture );
             ModifySelectedCounter( -1 );
             return false;
         }
-        else if( Settings.picturePickerTarget == PicturePickerTarget.DRIVER )
+        else if( Settings.picturePickerTarget == PicturePickerTarget.DRIVER &&
+                 Data.currentProfile.selectedDriver != null )
         {
             //driver can only have on picture selected
             //and this request is not unselect becouse of failure of previous check
@@ -151,6 +130,31 @@ public class PicturePicker : MonoBehaviour {
             AddToProfile( new[] { texture }, true );
             ModifySelectedCounter( 1 );
             return true;
+        }
+    }
+
+    private void RemoveSelectedFromProfile( Texture2D texture)
+    {
+        switch( Settings.picturePickerTarget )
+        {
+            case PicturePickerTarget.DRIVER:
+                Data.currentProfile.selectedDriver = null;
+                break;
+
+            case PicturePickerTarget.PASSENGER:
+                Data.currentProfile.selectedPassengers.Remove( texture );
+                break;
+
+            case PicturePickerTarget.STATION_SYMBOL:
+                //TODO
+                break;
+
+            case PicturePickerTarget.NOT_SELECTED:
+            default:
+                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
+                Debug.Assert( false );
+                SceneManager.LoadScene( "Settings" );
+                break;
         }
     }
 

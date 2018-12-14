@@ -7,6 +7,11 @@ public class Picture : MonoBehaviour {
 
     public Image child;
 
+    void Start()
+    {
+        DrawSelected( GetComponentInParent<PicturePicker>().isSelected( GetComponent<Image>().sprite.texture ) );
+    }
+
     public void onClick()
     {
         bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest( GetComponent<Image>().sprite.texture );
