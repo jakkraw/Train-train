@@ -93,7 +93,7 @@ public class PicturePicker : MonoBehaviour {
 
             case PicturePickerTarget.STATION_SYMBOL:
                 Symbol_ symbol = new Symbol_( texture );
-                return Data.currentProfile.selectedSymbols.Contains(symbol);
+                return Data.currentProfile.selectedSymbols.Exists( s => s.texture == texture);
 
             case PicturePickerTarget.NOT_SELECTED:
             default:
@@ -142,7 +142,7 @@ public class PicturePicker : MonoBehaviour {
 
             case PicturePickerTarget.STATION_SYMBOL:
                 Symbol_ symbol = new Symbol_( texture );
-                Data.currentProfile.selectedSymbols.Remove( symbol );
+                Data.currentProfile.selectedSymbols.RemoveAll( s => s.texture == texture );
                 break;
 
             case PicturePickerTarget.NOT_SELECTED:

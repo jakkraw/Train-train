@@ -44,9 +44,10 @@ public class Profile
 
     public string driver_string;
     public List<String> passengers_strings;
-    public float trainSpeed;
+    public List<String> symbols_strings;
+    public float trainSpeed = 25;
     public string points;
-    public bool doesEnd;     public bool changedToLetters;
+    public bool doesEnd = true;     public bool changedToLetters;
 
     //Needs to be run 
     public void ReconstructProfile()
@@ -68,6 +69,13 @@ public class Profile
         {
             this.symbols.Add(new Symbol_(i.ToString()));
         }
+
+        this.symbols = new List<Symbol_>();
+        foreach (var img in this.symbols_strings)
+        {
+            this.symbols.Add(new Symbol_(Resources.Load<Texture2D>(img)));
+        }
+
         this.selectedSymbols = new List<Symbol_>();
         this.selectedSymbols.AddRange( symbols );
     }
@@ -77,6 +85,7 @@ public class Profile
         var p = new Profile();
         p.passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
         p.driver_string = "Images/man";
+        p.symbols_strings = new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" };
         p.trainSpeed = 10;
         p.doesEnd = true;
         p.ReconstructProfile();

@@ -16,23 +16,30 @@ public class Level
     {
         profile = p;
         currentIndex = 0;
-        symbols = p.symbols;
+        symbols = p.selectedSymbols;
     }
 
     public static Symbol_ getNextStationSymbol()
     {
-        if (currentIndex >= symbols.Count) { return null; }
+        if(symbols.Count == 0) { return null; }
 
-        var symbol = symbols[currentIndex++];
+        var s = symbols[0];
+        symbols.RemoveAt(0);
+        if (!profile.doesEnd)
+        {
+            symbols.Add(s);
+        }
 
-        return symbol;
+        return s;
     }
 
     public static Symbol_ getRandomPossibleDestination()
     {
-        if (currentIndex >= symbols.Count) { return null; }
-        var destinations = symbols.GetRange(currentIndex, symbols.Count - currentIndex);
-        return destinations[Random.Range(0, destinations.Count)];
+        if (symbols.Count == 0) { return null; }
+        var destinations = symbols.GetRange(1,symbols.Count -1);
+        var next_index = System.Math.Min(Random.Range(0, destinations.Count), Random.Range(0, destinations.Count));
+        next_index = System.Math.Min(next_index, Random.Range(0, destinations.Count));
+        return destinations[next_index];
     }
 
     public static Texture2D getRandomPassengerTexture()
@@ -57,7 +64,7 @@ public class Level
         if (nextSymbol == null) return null;
       
         var newstation = Station.Spawn(nextSymbol);
-
+        
         foreach (var seat in newstation.seats)
         {
             if(Random.value < 0.4)
@@ -89,6 +96,7 @@ public class World : MonoBehaviour {
     {
         Level.set(Data.currentProfile);
 
+        train.SpeedLimit = Data.currentProfile.trainSpeed;
         train.driver.texture = Level.profile.selectedDriver;
 
         foreach (var seat in firstStation.seats)
@@ -153,7 +161,7 @@ public class World : MonoBehaviour {
                 train.GetComponent<Animator>().Play("train_leave");
             }
         }
-            _newStationDistance = Random.Range(30, 40);
+            _newStationDistance = Random.Range(30, 70);
     }
 
     void SwapSeat(Seat a, Seat b)
