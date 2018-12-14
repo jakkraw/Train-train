@@ -46,6 +46,38 @@ public class Settings : MonoBehaviour
         Data.currentProfile.trainSpeed = newValue;
     }
 
+    public void Symbol_type_selected(int newValue)
+    {
+        var symbols = Data.currentProfile.symbols;
+        symbols.Clear();
+
+        switch (newValue)
+        {
+            case 0:
+
+
+                break;
+            case 1:
+                for (int i = 1; i <= 7; i++) {
+                    Data.currentProfile.symbols.Add(new Symbol_(i.ToString()));
+                }
+                break;
+
+            case 2:
+                symbols.Add(new Symbol_("a"));
+                symbols.Add(new Symbol_("b"));
+                symbols.Add(new Symbol_("c"));
+                symbols.Add(new Symbol_("d"));
+                symbols.Add(new Symbol_("e"));
+                symbols.Add(new Symbol_("f"));
+                symbols.Add(new Symbol_("g"));
+                break;
+        }
+
+        Data.currentProfile.symbols = symbols;
+
+    }
+
     public void OnToggleDoesGameEndClick(bool newValue)
     {
         Data.currentProfile.doesEnd = newValue;
