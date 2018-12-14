@@ -14,7 +14,6 @@ public enum PicturePickerTarget
 
 public class Settings : MonoBehaviour
 {
-
     public Slider trainSpeedSlider;
     public Toggle doesGameEndToogle;
     public static PicturePickerTarget picturePickerTarget;
