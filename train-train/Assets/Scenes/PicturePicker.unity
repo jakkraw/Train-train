@@ -402,7 +402,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000003183183, y: -0.000029373225}
+  m_AnchoredPosition: {x: -0.000003183183, y: 0.00000061600196}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &427991543
@@ -439,8 +439,8 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 100, y: 100}
   m_Spacing: {x: 10, y: 10}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_Constraint: 1
+  m_ConstraintCount: 5
 --- !u!114 &427991545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b08cbaa7a1df945899e0427b58e812, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  imageTemplate: {fileID: 1147264242041780, guid: 7273f9888ed8def498c46595a965ebd1,
+  imageTemplate: {fileID: 1356373336277908, guid: 7273f9888ed8def498c46595a965ebd1,
     type: 2}
   selectedCounterTextBox: {fileID: 1527921185}
 --- !u!1 &441016974

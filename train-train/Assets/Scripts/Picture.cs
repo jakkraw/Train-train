@@ -5,17 +5,18 @@ using UnityEngine.UI;
 
 public class Picture : MonoBehaviour {
 
+    public Image child;
+
     public void onClick()
     {
-        bool drawSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest( GetComponent<Image>().sprite.texture );
-        DrawSelected( drawSelected );
+        bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest( GetComponent<Image>().sprite.texture );
+        DrawSelected( isSelected );
     }
 
-    public void DrawSelected(bool draw)
+    public void DrawSelected(bool selectedState )
     {
-        if( draw )
-            GetComponent<Image>().color = new Color( 255, 255, 0, 255 );
-        else
-            GetComponent<Image>().color = new Color( 255, 255, 255, 255 );
+        Color color = child.color;
+        color.a = selectedState ? 0.4f : 0.0f;
+        child.color = color;
     }
 }
