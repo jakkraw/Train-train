@@ -141,7 +141,6 @@ public class PicturePicker : MonoBehaviour {
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
-                Symbol_ symbol = new Symbol_( texture );
                 Data.currentProfile.selectedSymbols.RemoveAll( s => s.texture == texture );
                 break;
 
@@ -282,6 +281,7 @@ public class PicturePicker : MonoBehaviour {
             Rect rect = new Rect(0, 0, textures[i].width, textures[i].height);
             Sprite sprite = Sprite.Create(textures[i], rect, new Vector2(0.5f, 0.5f));
             Image image = ((GameObject)Instantiate(imageTemplate, transform)).GetComponent<Image>();
+            image.preserveAspect = true;
             image.sprite = sprite;
         }
     }

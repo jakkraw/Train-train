@@ -16,7 +16,9 @@ public class Settings : MonoBehaviour
 {
     public Slider trainSpeedSlider;
     public Toggle doesGameEndToogle;
-    public static PicturePickerTarget picturePickerTarget;     public Toggle SymbolsToLettersToggle;
+    public static PicturePickerTarget picturePickerTarget;     public Toggle limitPassengers;
+    public Toggle allowScore;
+    public TMPro.TMP_Dropdown symbolType;
 
     public void onBackClick()
     {
@@ -48,8 +50,10 @@ public class Settings : MonoBehaviour
 
     public void Symbol_type_selected(System.Int32 newValue)
     {
+        Data.currentProfile.symboltypeindex = newValue;
         var symbols = new List<Symbol_>();
-
+        Data.currentProfile.selectedSymbols = symbols;
+      
         switch (newValue)
         {
             case 0:
@@ -57,7 +61,7 @@ public class Settings : MonoBehaviour
                 break;
             case 1:
                 for (int i = 1; i <= 7; i++) {
-                    Data.currentProfile.symbols.Add(new Symbol_(i.ToString()));
+                   symbols.Add(new Symbol_(i.ToString()));
                 }
                 break;
 
@@ -71,9 +75,6 @@ public class Settings : MonoBehaviour
                 symbols.Add(new Symbol_("g"));
                 break;
         }
-
-        Data.currentProfile.selectedSymbols = symbols;
-
     }
 
     public void OnToggleDoesGameEndClick(bool newValue)
@@ -82,7 +83,24 @@ public class Settings : MonoBehaviour
         Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
     }
 
+    public void OnToggleAllowScoreClick(bool newValue)
+    {
+        Data.currentProfile.allowScore = newValue;
+        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
+    }
+
+    public void OnToggleLimitPassengersClick(bool newValue)
+    {
+        Data.currentProfile.limitPassengers = newValue;
+        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
+    }
+
     void Start()
     {
+        allowScore.isOn = Data.currentProfile.allowScore;
+        doesGameEndToogle.isOn = Data.currentProfile.doesEnd;
+        symbolType.value = Data.currentProfile.symboltypeindex;
+        trainSpeedSlider.value = Data.currentProfile.trainSpeed;
+        limitPassengers.isOn = Data.currentProfile.limitPassengers;
         picturePickerTarget = PicturePickerTarget.NOT_SELECTED;     }
 }

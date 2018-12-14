@@ -11,12 +11,16 @@ public class Level
 
     static int currentIndex;
     static List<Symbol_> symbols;
+    static bool limitPassengers;
+    static Train train;
 
-    public static void set(Profile p)
+    public static void set(Profile p, Train train)
     {
+        Level.train = train;
         profile = p;
         currentIndex = 0;
         symbols = p.selectedSymbols;
+        limitPassengers = profile.limitPassengers;
     }
 
     public static Symbol_ getNextStationSymbol()
@@ -36,9 +40,8 @@ public class Level
     public static Symbol_ getRandomPossibleDestination()
     {
         if (symbols.Count == 0) { return null; }
-        var destinations = symbols.GetRange(1,symbols.Count -1);
+        var destinations = symbols.GetRange(0,symbols.Count);
         var next_index = System.Math.Min(Random.Range(0, destinations.Count), Random.Range(0, destinations.Count));
-        next_index = System.Math.Min(next_index, Random.Range(0, destinations.Count));
         return destinations[next_index];
     }
 
@@ -64,11 +67,16 @@ public class Level
         if (nextSymbol == null) return null;
       
         var newstation = Station.Spawn(nextSymbol);
-        
+
+        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.GetComponent<Passenger>().symbol.symbol_ == nextSymbol));
+
         foreach (var seat in newstation.seats)
         {
-            if(Random.value < 0.4)
+            if(Random.value < (Level.profile.limitPassengers ? 0.9 : 0.4))
             {
+                if (Level.profile.limitPassengers && toSpawn-- <= 0) {
+                    continue; }
+
                 var p = getNextPassenger();
                 if (p != null)
                 {
@@ -88,23 +96,39 @@ public class World : MonoBehaviour {
     public Station firstStation;
     public Train train;
     public Environment environment;
+    public Text score;
+    int _score = 0;
     bool quit = false;
     float _newStationDistance = 100;
     bool enablePassengerMove = false;
 
     private void Start()
     {
-        Level.set(Data.currentProfile);
+        Level.set(Data.currentProfile, train);
 
+        score.gameObject.SetActive(Level.profile.allowScore);
         train.SpeedLimit = Data.currentProfile.trainSpeed;
         train.driver.texture = Level.profile.selectedDriver;
 
+        var toSpawn = train.seats.Count;
         foreach (var seat in firstStation.seats)
         {
-            var p = Level.getNextPassenger();
-            if(p != null)
-              seat.Place(p);
+            if (Random.value < (Level.profile.limitPassengers ? 0.9 : 0.4))
+            {
+                if (Level.profile.limitPassengers && toSpawn-- <= 0)
+                {
+                    continue;
+                }
+
+                var p = Level.getNextPassenger();
+                if (p != null)
+                {
+                    seat.Place(p);
+                }
+            }
+
         }
+
     }
 
     void Update () {
@@ -119,6 +143,16 @@ public class World : MonoBehaviour {
         foreach (Seat seat in FindObjectsOfType<Seat>()) {
             seat.setActive(train.Speed == 0 && enablePassengerMove);
         }
+
+
+        var passengersToLeave = ClosestStation().seats.FindAll(s => s.passenger && s.passenger.symbol.symbol_ == ClosestStation().symbol.symbol_);
+        foreach (var seat in passengersToLeave)
+        {
+            seat.leaveSeat();
+            _score+=3;
+            score.text = _score.ToString();
+        }
+
     }
 
     void MoveWorld()
@@ -228,7 +262,16 @@ public class World : MonoBehaviour {
         {
             var seat = gameObject.GetComponent<Seat>();
             var sseat = ClosestStation().FreeSeat();
-            if (!seat.isEmpty() && !sseat.blocked) SwapSeat(sseat, seat);
+            if (!seat.isEmpty() && !sseat.blocked)
+            {
+                var passenger = seat.passenger;
+                SwapSeat(sseat, seat);
+                if (passenger.symbol.symbol_ != ClosestStation().symbol.symbol_)
+                {
+                    passenger.GetComponent<Animator>().Play("passenger_unhappy");
+                    score.text = (--_score).ToString();
+                }
+            }
         }
 
         if (gameObject.CompareTag("Station Seat"))

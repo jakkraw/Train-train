@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour {
 
     void Start()
     {
-        Debug.Log("[DEBUG: trainSpeedValue at MainMenu open is " + Data.currentProfile.trainSpeed + "]");
+        Data.init();
     }
 
 }

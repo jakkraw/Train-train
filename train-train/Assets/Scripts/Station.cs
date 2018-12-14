@@ -20,16 +20,6 @@ public class Station : MonoBehaviour {
         return seats.Find(s => s.isEmpty());
     }
 
-    private void Update()
-    {
-       var passengersToLeave = seats.FindAll(s => s.passenger && s.passenger.symbol.symbol_ == symbol.symbol_);
-       foreach(var seat in passengersToLeave)
-       {
-            seat.leaveSeat();
-        }
-        
-    }
-
     public void setSymbol(Symbol_ s)
     {
         symbol.setSymbol(s);

@@ -42,12 +42,15 @@ public class Profile
     [NonSerialized]
     public List<Symbol_> selectedSymbols;
 
-    public string driver_string;
-    public List<String> passengers_strings;
-    public List<String> symbols_strings;
+    public int symboltypeindex = 0;
+    public string driver_string = "Images/man";
+    public List<String> passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
+    public List<String> symbols_strings = new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" };
     public float trainSpeed = 25;
     public string points;
     public bool doesEnd = true;     public bool changedToLetters;
+    public bool limitPassengers = true;
+    public bool allowScore = true;
 
     //Needs to be run 
     public void ReconstructProfile()
@@ -62,6 +65,7 @@ public class Profile
 
         this.drivers = new List<Texture2D>();
         this.drivers.Add( Resources.Load<Texture2D>(this.driver_string) );
+        this.drivers.Add(Resources.Load<Texture2D>("Images/happy_face 1"));
         this.selectedDriver = drivers[0];
 
         this.symbols = new List<Symbol_>();
@@ -86,10 +90,7 @@ public class Profile
         p.passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
         p.driver_string = "Images/man";
         p.symbols_strings = new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" };
-        p.trainSpeed = 10;
-        p.doesEnd = true;
         p.ReconstructProfile();
-        p.changedToLetters = false;
         return p;
     }
 }
@@ -135,13 +136,17 @@ public class ProfileList
 
 public class Data
 {
+    static bool didInit = false;
 
-    void Start()
+    public static void init()
     {
+        if (didInit) return;
+        didInit = true;
+
         //ścieżka pliku z profilami
         currentProfile = Profile.testProfile(); //tymczasowo tutaj, potem do zmiany
-        string destination = Application.dataPath + "/profilesAG.bin";
-        BinaryFormatter bf = new BinaryFormatter();
+        //string destination = Application.dataPath + "/profilesAG.bin";
+        //BinaryFormatter bf = new BinaryFormatter();
 
         //if (File.Exists(destination))
         //{
@@ -156,45 +161,20 @@ public class Data
         //}
         //else
         //{
-        FileStream file = File.Create(destination);
-        var p_list = new ProfileList();
-        p_list.profiles.Insert(0, currentProfile); //profilelist wjechal pusty
-        bf.Serialize(file, p_list);
-        file.Close();
-        Debug.Log("Profile files were created.");
+        //FileStream file = File.Create(destination);
+        //var p_list = new ProfileList();
+        //p_list.profiles.Insert(0, currentProfile); //profilelist wjechal pusty
+        //bf.Serialize(file, p_list);
+        //file.Close();
+        //Debug.Log("Profile files were created.");
         //}
     }
 
-    static Data()
-    {
-        //ścieżka pliku z profilami
-        currentProfile = Profile.testProfile(); //tymczasowo tutaj, potem do zmiany
-        string destination = Application.dataPath + "/profilesAG.bin";
-        BinaryFormatter bf = new BinaryFormatter();
+    public static Profile _currentProfile;
+    public static ProfileList _All_Profiles;
 
-        //if (File.Exists(destination))
-        //{
-            //FileStream file = File.OpenRead(destination);
-            //Debug.Log("A");
-            //ProfileList dataFromFile = (ProfileList)bf.Deserialize(file);
-            //Debug.Log("B");
-            //file.Close();
-            //All_Profiles.profiles = dataFromFile.profiles;
-            //currentProfile = All_Profiles.profiles[0];
-            //currentProfile.ReconstructProfile();
-        //}
-        //else
-        //{
-            FileStream file = File.Create(destination);
-            var p_list = new ProfileList();
-            p_list.profiles.Insert(0, currentProfile); //profilelist wjechal pusty
-            bf.Serialize(file, p_list);
-            file.Close();
-            Debug.Log("Profile files were created.");
-        //}
-    }
-
-    public static Profile currentProfile;
-    public static ProfileList All_Profiles;
+    public static Profile currentProfile { get { init(); return _currentProfile; } set { _currentProfile = value; } }
+    public static ProfileList All_Profiles { get { init(); return _All_Profiles; } set { _All_Profiles = value; } }
+    
 
 }
