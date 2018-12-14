@@ -46,7 +46,7 @@ public class Profile
     public List<String> passengers_strings;
     public float trainSpeed;
     public string points;
-    public bool doesEnd;
+    public bool doesEnd;     public bool changedToLetters;
 
     //Needs to be run 
     public void ReconstructProfile()
@@ -80,6 +80,7 @@ public class Profile
         p.trainSpeed = 10;
         p.doesEnd = true;
         p.ReconstructProfile();
+        p.changedToLetters = false;
         return p;
     }
 }
