@@ -22,6 +22,8 @@ public class Settings : MonoBehaviour
 
     public void onBackClick()
     {
+        Data data = new Data();
+        data.save();
         SceneManager.LoadScene("Menu");
     }
 
@@ -80,19 +82,16 @@ public class Settings : MonoBehaviour
     public void OnToggleDoesGameEndClick(bool newValue)
     {
         Data.currentProfile.doesEnd = newValue;
-        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
     }
 
     public void OnToggleAllowScoreClick(bool newValue)
     {
         Data.currentProfile.allowScore = newValue;
-        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
     }
 
     public void OnToggleLimitPassengersClick(bool newValue)
     {
         Data.currentProfile.limitPassengers = newValue;
-        Debug.Log("[DEBUG: doesEnd after toggle change is " + Data.currentProfile.doesEnd + "]");
     }
 
     void Start()

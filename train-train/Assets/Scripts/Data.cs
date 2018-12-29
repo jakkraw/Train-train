@@ -132,8 +132,6 @@ public class ProfileList
 }
 
 
-
-
 public class Data
 {
     static bool didInit = false;
@@ -143,36 +141,60 @@ public class Data
         if (didInit) return;
         didInit = true;
 
-        //ścieżka pliku z profilami
-        currentProfile = Profile.testProfile(); //tymczasowo tutaj, potem do zmiany
-        //string destination = Application.dataPath + "/profilesAG.bin";
-        //BinaryFormatter bf = new BinaryFormatter();
+        //ścieżka pliku z profilami //tymczasowo tutaj, potem do zmiany
 
-        //if (File.Exists(destination))
-        //{
-        //FileStream file = File.OpenRead(destination);
-        //Debug.Log("A");
-        //ProfileList dataFromFile = (ProfileList)bf.Deserialize(file);
-        //Debug.Log("B");
-        //file.Close();
-        //All_Profiles.profiles = dataFromFile.profiles;
-        //currentProfile = All_Profiles.profiles[0];
-        //currentProfile.ReconstructProfile();
-        //}
-        //else
-        //{
-        //FileStream file = File.Create(destination);
-        //var p_list = new ProfileList();
-        //p_list.profiles.Insert(0, currentProfile); //profilelist wjechal pusty
-        //bf.Serialize(file, p_list);
-        //file.Close();
-        //Debug.Log("Profile files were created.");
-        //}
+        if (File.Exists(destination))
+        {
+            FileStream file = File.OpenRead(destination);
+            ProfileList dataFromFile = (ProfileList)bf.Deserialize(file);
+            file.Close();
+            All_Profiles = new ProfileList
+            {
+                profiles = dataFromFile.profiles
+            };
+            currentProfile = All_Profiles.profiles[0];
+            currentProfile.ReconstructProfile();
+            Debug.Log("Profile file was loaded.");
+        }
+        else
+        {
+            FileStream file = File.Create(destination);
+            var p_list = new ProfileList();
+            p_list.profiles.Insert(0, Profile.testProfile());
+            bf.Serialize(file, p_list);
+            file.Close();
+            Debug.Log("Profile file was created.");
+        }
+    }
+
+    public void save()
+    {
+        if (File.Exists(destination))
+        {
+            FileStream file = File.OpenWrite(destination);
+            var p_list = new ProfileList();
+            p_list.profiles.Insert(0, currentProfile);
+            bf.Serialize(file, p_list);
+            file.Close();
+            Debug.Log("Profile file was saved.");
+        }
+        else
+        {
+            FileStream file = File.Create(destination);
+            var p_list = new ProfileList();
+            p_list.profiles.Insert(0, currentProfile);
+            bf.Serialize(file, p_list);
+            file.Close();
+            Debug.Log("Profile file was created while exitting settings.");
+        }
     }
 
     public static Profile _currentProfile;
     public static ProfileList _All_Profiles;
 
+
+    public static BinaryFormatter bf = new BinaryFormatter();
+    public static string destination = Application.dataPath + "/profiles.bin";
     public static Profile currentProfile { get { init(); return _currentProfile; } set { _currentProfile = value; } }
     public static ProfileList All_Profiles { get { init(); return _All_Profiles; } set { _All_Profiles = value; } }
     

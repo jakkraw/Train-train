@@ -34,3 +34,8 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+train-train/Assets/profiles.bin
+train-train/Assets/profiles.bin.meta
+train-train/Assets/profilesAG.bin
+train-train/Assets/profilesAG.bin
+train-train/Assets/profilesAG.bin
