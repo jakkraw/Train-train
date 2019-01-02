@@ -19,7 +19,7 @@ public class Level
         Level.train = train;
         profile = p;
         currentIndex = 0;
-        symbols = p.selectedSymbols;
+        symbols = new List<Symbol_>(p.selectedSymbols);
         limitPassengers = profile.limitPassengers;
     }
 
