@@ -182,14 +182,27 @@ public static class Data
 
     public static void load()
     {
-        All_Profiles = File.Exists(destination) ? (ProfileList)new BinaryFormatter().Deserialize(File.OpenRead(destination)) : new ProfileList(Profile.testProfile());
+        if (File.Exists(destination))
+        {
+           var file = File.OpenRead(destination);
+           All_Profiles = (ProfileList)new BinaryFormatter().Deserialize(file);
+            file.Close();
+        }
+        else
+        {
+            All_Profiles =  new ProfileList(Profile.testProfile());
+        }
+       
+        Profile.ReconstructProfile();
         Debug.Log("Profile file was loaded.");
     }
 
     public static void save()
     {
         foreach (var profile in All_Profiles.profiles) profile.PackProfile();
-        new BinaryFormatter().Serialize(File.Open(destination, FileMode.Create), All_Profiles);
+        var file = File.Open(destination, FileMode.Create);
+        new BinaryFormatter().Serialize(file, All_Profiles);
+        file.Close();
         Debug.Log("Profile file was saved.");
     }
 
