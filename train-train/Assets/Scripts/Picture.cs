@@ -15,7 +15,14 @@ public class Picture : MonoBehaviour {
     public void onClick()
     {
         bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest( GetComponent<Image>().sprite.texture );
-        DrawSelected( isSelected );
+        bool isDeleting = GetComponentInParent<PicturePicker>().isDeleteModeActive();
+        if(!isDeleting)
+            DrawSelected( isSelected );
+        else
+        {
+            GetComponentInParent<PicturePicker>().HandleDeleteRequest( GetComponent<Image>().sprite.texture, isSelected );
+            Destroy( gameObject );
+        }
     }
 
     public void DrawSelected(bool selectedState )
