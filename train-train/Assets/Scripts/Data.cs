@@ -7,28 +7,47 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class Symbol_
+public class StationSymbol
 {
     public string text = "";
     public Texture2D texture = null;
 
-    public Symbol_(string t)
+    public StationSymbol(string t)
     {
         text = t;
     }
 
-    public Symbol_(Texture2D t)
+    public StationSymbol(Texture2D t)
     {
         texture = t;
     }
 }
 
-
-//Klasa, która zawiera informacje zapisywane - tutaj jest miejsce na wszelkie ustawienia
 [Serializable]
 public class Profile
 {
-    //Texture2D Nie może być serializowane
+    [Serializable]
+    public class TextureInfo
+    {
+
+        public TextureInfo(bool isSelected, Texture2D tex)
+        {
+            this.isSelected = isSelected;
+            this.bytes = tex.EncodeToPNG();
+        }
+
+        public Texture2D construct()
+        {
+            var tex = new Texture2D(1, 1);
+            tex.LoadImage(bytes);
+            return tex;
+        }
+
+        public bool isSelected;
+        public byte[] bytes;
+
+    }
+
     [NonSerialized]
     public List<Texture2D> drivers;
     [NonSerialized]
@@ -38,165 +57,145 @@ public class Profile
     [NonSerialized]
     public List<Texture2D> selectedPassengers;
     [NonSerialized]
-    public List<Symbol_> symbols;
+    public List<StationSymbol> symbols;
     [NonSerialized]
-    public List<Symbol_> selectedSymbols;
+    public List<StationSymbol> selectedSymbols;
+
+    [NonSerialized]
+    public bool reconstructed = false;
 
     public int symboltypeindex = 0;
-    public string driver_string = "Images/man";
-    public List<String> passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
-    public List<String> symbols_strings = new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" };
     public float trainSpeed = 25;
-    public string points;
-    public bool doesEnd = true;     public bool changedToLetters;
+    public bool doesEnd = true;
     public bool limitPassengers = true;
     public bool allowScore = true;
 
-    //Needs to be run 
+    public List<TextureInfo> passengers_info = new List<TextureInfo>();
+    public List<TextureInfo> drivers_info = new List<TextureInfo>();
+    public List<TextureInfo> symbols_info = new List<TextureInfo>();
+
+
+    public void PackProfile()
+    {
+        passengers_info.Clear();
+        foreach (var tex in passengers)
+            passengers_info.Add(new TextureInfo(selectedPassengers.Contains(tex), tex));
+
+        symbols_info.Clear();
+        foreach (var symbol in symbols)
+            symbols_info.Add(new TextureInfo(selectedSymbols.Exists(s => s.texture == symbol.texture), symbol.texture));
+
+        drivers_info.Clear();
+        foreach (var tex in drivers)
+            drivers_info.Add(new TextureInfo(selectedDriver == tex, tex));
+    }
+
     public void ReconstructProfile()
     {
+        if(reconstructed) { return; }
+        reconstructed = true;
+
         this.passengers = new List<Texture2D>();
-        foreach (var img in this.passengers_strings)
-        {
-            this.passengers.Add(Resources.Load<Texture2D>(img));
-        }
         this.selectedPassengers = new List<Texture2D>();
-        this.selectedPassengers.AddRange( this.passengers );
-
-        this.drivers = new List<Texture2D>();
-        this.drivers.Add( Resources.Load<Texture2D>(this.driver_string) );
-        this.drivers.Add(Resources.Load<Texture2D>("Images/happy_face 1"));
-        this.selectedDriver = drivers[0];
-
-        this.symbols = new List<Symbol_>();
-        for (int i = 1; i <= 7; i++)
+        foreach (var info in passengers_info)
         {
-            this.symbols.Add(new Symbol_(i.ToString()));
+            var img = info.construct();
+            passengers.Add(img);
+            if (info.isSelected) { selectedPassengers.Add(img); }
         }
 
-        this.symbols = new List<Symbol_>();
-        foreach (var img in this.symbols_strings)
+        drivers = new List<Texture2D>();
+        selectedDriver = null;
+        foreach (var info in drivers_info)
         {
-            this.symbols.Add(new Symbol_(Resources.Load<Texture2D>(img)));
+            var img = info.construct();
+            drivers.Add(img);
+            if (info.isSelected) { selectedDriver = img; }
         }
 
-        this.selectedSymbols = new List<Symbol_>();
-        this.selectedSymbols.AddRange( symbols );
+        symbols = new List<StationSymbol>();
+        selectedSymbols = new List<StationSymbol>();
+        foreach (var info in symbols_info)
+        {
+            var symbol = new StationSymbol(info.construct());
+            symbols.Add(symbol);
+            if (info.isSelected) { selectedSymbols.Add(symbol); }
+        }
+
     }
 
     public static Profile testProfile()
     {
         var p = new Profile();
-        p.passengers_strings = new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" };
-        p.driver_string = "Images/man";
-        p.symbols_strings = new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" };
-        p.ReconstructProfile();
+
+        foreach(var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
+           p.passengers_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path))); 
+        }
+
+        foreach (var path in new List<string>() { "Images/man", "Images/happy_face 1" })
+        {
+            p.drivers_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
+        }
+
+        p.drivers_info[0].isSelected = true;
+
+        foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" })
+        {
+            p.symbols_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path)));
+        }
+
         return p;
     }
 }
 
-//[Serializable]
-//public class Textures
-//{
-    
-
-//    public Textures(Texture2D driver_toSave, List<Symbol> symbols_toSave, List<Texture2D> passengers_toSave)
-//    {
-//        //Tutaj wrzuce konwersje parametrow wejsciowych na zmienne zadeklarowane wczesniej zeby mozna bylo to serializowac
-//    }
-//}
-
-//Dopisz opcje - zmiany - trainspeed - doesnend - symbols - w settings zrobic 
-
-
-//Klasa zapisywalna do pliku - lista profili oraz informacja o obecnym profilu
 [Serializable]
 public class ProfileList
 {
     public List<Profile> profiles = new List<Profile>();
-    //public Textures textures; //Jakas inicjalizacja domyslna??
-    //                          //currentProfile - funkcja, ktora sptawdza index z ProfileList i wtedy ona wykorzystuje informacje z opdowiedniego profilu
+    public int index = -1;
 
-    //public void NewProfiles()
-    //{
-    //}
+    public ProfileList(Profile profile)
+    {
+        index = 0;
+        profiles.Add(profile);
+        
+    }
 
-    //public ProfileList()
-    //{
-    //    profiles = new List<Profile>
-    //    {
-    //        Profile.testProfile(),
-    //        null
-    //    };
-    //}
+    public void addProfile(Profile profile) {
+        profiles.Add(profile);
+    }
+
+    public Profile currentProfile() {
+        var profile = profiles[index];
+        profile.ReconstructProfile();
+        return profile;
+    }
 }
 
 
-public class Data
+public static class Data
 {
-    static bool didInit = false;
-
-    public static void init()
+    static Data()
     {
-        if (didInit) return;
-        didInit = true;
-
-        //ścieżka pliku z profilami //tymczasowo tutaj, potem do zmiany
-
-        if (File.Exists(destination))
-        {
-            FileStream file = File.OpenRead(destination);
-            ProfileList dataFromFile = (ProfileList)bf.Deserialize(file);
-            file.Close();
-            All_Profiles = new ProfileList
-            {
-                profiles = dataFromFile.profiles
-            };
-            currentProfile = All_Profiles.profiles[0];
-            currentProfile.ReconstructProfile();
-            Debug.Log("Profile file was loaded.");
-        }
-        else
-        {
-            FileStream file = File.Create(destination);
-            var p_list = new ProfileList();
-            p_list.profiles.Insert(0, Profile.testProfile());
-            bf.Serialize(file, p_list);
-            file.Close();
-            Debug.Log("Profile file was created.");
-        }
+        load();
     }
 
-    public void save()
+    public static void load()
     {
-        if (File.Exists(destination))
-        {
-            FileStream file = File.OpenWrite(destination);
-            var p_list = new ProfileList();
-            p_list.profiles.Insert(0, currentProfile);
-            bf.Serialize(file, p_list);
-            file.Close();
-            Debug.Log("Profile file was saved.");
-        }
-        else
-        {
-            FileStream file = File.Create(destination);
-            var p_list = new ProfileList();
-            p_list.profiles.Insert(0, currentProfile);
-            bf.Serialize(file, p_list);
-            file.Close();
-            Debug.Log("Profile file was created while exitting settings.");
-        }
+        All_Profiles = File.Exists(destination) ? (ProfileList)new BinaryFormatter().Deserialize(File.OpenRead(destination)) : new ProfileList(Profile.testProfile());
+        Debug.Log("Profile file was loaded.");
     }
 
-    public static Profile _currentProfile;
-    public static ProfileList _All_Profiles;
+    public static void save()
+    {
+        foreach (var profile in All_Profiles.profiles) profile.PackProfile();
+        new BinaryFormatter().Serialize(File.Open(destination, FileMode.Create), All_Profiles);
+        Debug.Log("Profile file was saved.");
+    }
 
-
-    public static BinaryFormatter bf = new BinaryFormatter();
-    public static string destination = Application.dataPath + "/profiles.bin";
-    public static Profile currentProfile { get { init(); return _currentProfile; } set { _currentProfile = value; } }
-    public static ProfileList All_Profiles { get { init(); return _All_Profiles; } set { _All_Profiles = value; } }
+    public static ProfileList All_Profiles;
+    public static string destination = Application.persistentDataPath + "/profiles.bin";
+    public static Profile Profile { get { return All_Profiles.currentProfile(); } }
     
 
 }

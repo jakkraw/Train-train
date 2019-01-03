@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class Passenger : MonoBehaviour {
 
     public RawImage image;
-    public Symbol symbol;
-    public static Passenger GetPassenger(Symbol_ s, Texture2D t)
+    public SymbolRepresentation symbol;
+    public static Passenger GetPassenger(StationSymbol s, Texture2D t)
     {
         var p = Instantiate(Resources.Load<GameObject>("Passenger")).GetComponent<Passenger>();
         p.setTexture(t);
@@ -16,7 +16,7 @@ public class Passenger : MonoBehaviour {
         return p;
     }
 
-    public void setDestination(Symbol_ s)
+    public void setDestination(StationSymbol s)
     {
         symbol.setSymbol(s);
     }

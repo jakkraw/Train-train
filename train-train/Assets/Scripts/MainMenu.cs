@@ -14,10 +14,4 @@ public class MainMenu : MonoBehaviour {
     {
         SceneManager.LoadScene("Settings");
     }
-
-    void Start()
-    {
-        Data.init();
-    }
-
 }

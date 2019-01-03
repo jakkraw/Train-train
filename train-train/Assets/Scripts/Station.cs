@@ -4,11 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Station : MonoBehaviour {
-    public Symbol symbol;
+    public SymbolRepresentation symbol;
     public List<Seat> seats;
     public Transform middle;
 
-    public static Station Spawn(Symbol_ s)
+    public static Station Spawn(StationSymbol s)
     {
         var station = Instantiate(Resources.Load<GameObject>("Station")).GetComponent<Station>();
         station.setSymbol(s);
@@ -20,7 +20,7 @@ public class Station : MonoBehaviour {
         return seats.Find(s => s.isEmpty());
     }
 
-    public void setSymbol(Symbol_ s)
+    public void setSymbol(StationSymbol s)
     {
         symbol.setSymbol(s);
     }

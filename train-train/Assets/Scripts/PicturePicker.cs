@@ -4,41 +4,42 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
+
+public enum PicturePickerTarget { 
+    DRIVER,
+    PASSENGER,
+    STATION_SYMBOL
+}
 
 public class PicturePicker : MonoBehaviour {
 
+    public static PicturePickerTarget picturePickerTarget = PicturePickerTarget.PASSENGER;
     public GameObject imageTemplate;
     public GameObject selectedCounterTextBox;
 
 	// Use this for initialization
 	void Start () {
 
-        switch( Settings.picturePickerTarget )
+        switch(picturePickerTarget)
         {
             case PicturePickerTarget.DRIVER:
                 ModifySelectedCounter( 1 );
                 break;
 
             case PicturePickerTarget.PASSENGER:
-                ModifySelectedCounter( Data.currentProfile.selectedPassengers.Count );
+                ModifySelectedCounter( Data.Profile.selectedPassengers.Count );
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
                 {
                     int counter = 0;
-                    for( int i = 0; i < Data.currentProfile.selectedSymbols.Count; i++ )
-                        if( Data.currentProfile.selectedSymbols[i].texture )
+                    for( int i = 0; i < Data.Profile.selectedSymbols.Count; i++ )
+                        if( Data.Profile.selectedSymbols[i].texture )
                             counter++;
                     ModifySelectedCounter( counter );
                     break;
                 }
-            
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                break;
         }
         
         LoadFromProfile();
@@ -46,27 +47,21 @@ public class PicturePicker : MonoBehaviour {
 
     public void BackOnClick()
     {
-        switch( Settings.picturePickerTarget )
+        switch( picturePickerTarget )
         {
             case PicturePickerTarget.DRIVER:
-                if( Data.currentProfile.selectedDriver == null )
+                if( Data.Profile.selectedDriver == null )
                     return;
                 break;
 
             case PicturePickerTarget.PASSENGER:
-                if( Data.currentProfile.selectedPassengers.Count == 0 )
+                if( Data.Profile.selectedPassengers.Count == 0 )
                     return;
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
                 break;
 
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                break;
         }
         SceneManager.LoadScene( "Settings" );
     }
@@ -81,26 +76,20 @@ public class PicturePicker : MonoBehaviour {
 
     public bool isSelected( Texture2D texture )
     {
-        switch( Settings.picturePickerTarget )
+        switch( picturePickerTarget )
         {
+            default:
             case PicturePickerTarget.DRIVER:
-                if( Data.currentProfile.selectedDriver == null )
+                if( Data.Profile.selectedDriver == null )
                     return false;
-                return Data.currentProfile.selectedDriver.Equals( texture );
+                return Data.Profile.selectedDriver.Equals( texture );
 
             case PicturePickerTarget.PASSENGER:
-                return Data.currentProfile.selectedPassengers.Contains( texture );
+                return Data.Profile.selectedPassengers.Contains( texture );
 
             case PicturePickerTarget.STATION_SYMBOL:
-                Symbol_ symbol = new Symbol_( texture );
-                return Data.currentProfile.selectedSymbols.Exists( s => s.texture == texture);
-
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                return false;
+                StationSymbol symbol = new StationSymbol( texture );
+                return Data.Profile.selectedSymbols.Exists( s => s.texture == texture);
         }
     }
 
@@ -112,8 +101,8 @@ public class PicturePicker : MonoBehaviour {
             ModifySelectedCounter( -1 );
             return false;
         }
-        else if( Settings.picturePickerTarget == PicturePickerTarget.DRIVER &&
-                 Data.currentProfile.selectedDriver != null )
+        else if( picturePickerTarget == PicturePickerTarget.DRIVER &&
+                 Data.Profile.selectedDriver != null )
         {
             //driver can only have on picture selected
             //and this request is not unselect becouse of failure of previous check
@@ -122,7 +111,7 @@ public class PicturePicker : MonoBehaviour {
         }
         else
         {
-            AddToProfile( new[] { texture }, true );
+            AddToProfile(new List<Texture2D> { texture }, true );
             ModifySelectedCounter( 1 );
             return true;
         }
@@ -130,101 +119,84 @@ public class PicturePicker : MonoBehaviour {
 
     private void RemoveSelectedFromProfile( Texture2D texture )
     {
-        switch( Settings.picturePickerTarget )
+        switch( picturePickerTarget )
         {
             case PicturePickerTarget.DRIVER:
-                Data.currentProfile.selectedDriver = null;
+                Data.Profile.selectedDriver = null;
                 break;
 
             case PicturePickerTarget.PASSENGER:
-                Data.currentProfile.selectedPassengers.Remove( texture );
+                Data.Profile.selectedPassengers.RemoveAll(t => t == texture);
                 break;
-
+            
             case PicturePickerTarget.STATION_SYMBOL:
-                Data.currentProfile.selectedSymbols.RemoveAll( s => s.texture == texture );
+                Data.Profile.selectedSymbols.RemoveAll( s => s.texture == texture );
                 break;
-
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                break;
+            default: break;
         }
     }
 
-    private void AddToProfile( Texture2D[] textures, bool addToSelected = false )
+    private void AddToProfile( List<Texture2D> textures, bool addToSelected = false )
     {
-        switch( Settings.picturePickerTarget )
+       
+        switch( picturePickerTarget )
         {
             case PicturePickerTarget.DRIVER:
                 if( addToSelected )
                 {
-                    Debug.Assert( textures.Length == 1 );
-                    Data.currentProfile.selectedDriver = textures[0];
+                    Debug.Assert( textures.Count == 1 );
+                    Data.Profile.selectedDriver = textures[0];
                 }
                 else
-                    Data.currentProfile.drivers.AddRange( textures );
+                    Data.Profile.drivers.AddRange( textures );
                 break;
 
             case PicturePickerTarget.PASSENGER:
                 if( addToSelected )
-                    Data.currentProfile.selectedPassengers.AddRange( textures );
+                    Data.Profile.selectedPassengers.AddRange( textures );
                 else
-                    Data.currentProfile.passengers.AddRange( textures );
+                    Data.Profile.passengers.AddRange( textures );
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
                 {
-                    List<Symbol_> symbols = new List<Symbol_>();
-                    for( int i = 0; i < textures.Length; i++ )
-                        symbols.Add( new Symbol_( textures[i] ) );
+                    List<StationSymbol> symbols = new List<StationSymbol>();
+                    for( int i = 0; i < textures.Count; i++ )
+                        symbols.Add( new StationSymbol( textures[i] ) );
 
                     if( addToSelected )
-                        Data.currentProfile.selectedSymbols.AddRange( symbols );
+                        Data.Profile.selectedSymbols.AddRange( symbols );
                     else
-                        Data.currentProfile.symbols.AddRange( symbols );
+                        Data.Profile.symbols.AddRange( symbols );
                     break;
                 }
-
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                break;
+            default: break;
         }
     }
 
     private void LoadFromProfile()
     {
-        switch( Settings.picturePickerTarget )
+        switch( picturePickerTarget )
         {
             case PicturePickerTarget.DRIVER:
-                DrawPictures( Data.currentProfile.drivers.ToArray() );
+                DrawPictures( Data.Profile.drivers);
                 break;
 
             case PicturePickerTarget.PASSENGER:
-                DrawPictures( Data.currentProfile.passengers.ToArray() );
+                DrawPictures( Data.Profile.passengers );
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
                 {
                     List<Texture2D> textures = new List<Texture2D>();
-                    List<Symbol_> symbols = Data.currentProfile.symbols;
+                    List<StationSymbol> symbols = Data.Profile.symbols;
                     for( int i = 0; i < symbols.Count; i++ )
                         if( symbols[i].texture )
                             textures.Add( symbols[i].texture );
-                    DrawPictures( textures.ToArray() );
+                    DrawPictures( textures );
                     break;
                 }
-
-            case PicturePickerTarget.NOT_SELECTED:
-            default:
-                Debug.Log( "PicturePickerTarget.NOT_SELECTED" );
-                Debug.Assert( false );
-                SceneManager.LoadScene( "Settings" );
-                break;
+            default: break;
         }
     }
 
@@ -235,7 +207,7 @@ public class PicturePicker : MonoBehaviour {
             if( path != null )
             {
                 // Create a Texture2D from the captured image
-                Texture2D texture = NativeCamera.LoadImageAtPath( path );
+                Texture2D texture = NativeCamera.LoadImageAtPath( path, 200, false );
                 if( texture == null )
                 {
                     Debug.Log( "Couldn't load texture from " + path );
@@ -243,7 +215,7 @@ public class PicturePicker : MonoBehaviour {
                 }
 
                 //NativeGallery.SaveImageToGallery(texture.EncodeToJPG(), "TrainTrain", "{0}.png", null /*fuck error handling, what can go wrong?*//*);
-                HandlePictureAddition(new[] { texture } );
+                HandlePictureAddition(new List<Texture2D> { texture } );
             }
         }, maxSize );
         //((GameObject) Instantiate( imageTemplate, transform )).GetComponent<Image>().color = Random.ColorHSV();
@@ -264,19 +236,20 @@ public class PicturePicker : MonoBehaviour {
     {
         List<Texture2D> textures = new List<Texture2D>();
         for( int i = 0; i < paths.Length; i++ )
-            textures.Add( NativeGallery.LoadImageAtPath( paths[i], -1/* set resize(?) size here*/ ) );
-        HandlePictureAddition( textures.ToArray() );
+            textures.Add( NativeGallery.LoadImageAtPath( paths[i], 200, false) );
+        HandlePictureAddition( textures );
     }
 
-    private void HandlePictureAddition(Texture2D[] textures)
+    private void HandlePictureAddition(List<Texture2D> textures)
     {
+
         DrawPictures(textures);
         AddToProfile(textures);
     }
 
-    private void DrawPictures(Texture2D[] textures)
+    private void DrawPictures(List<Texture2D> textures)
     {
-        for( int i = 0; i < textures.Length; i++ )
+        for( int i = 0; i < textures.Count; i++ )
         {
             Rect rect = new Rect(0, 0, textures[i].width, textures[i].height);
             Sprite sprite = Sprite.Create(textures[i], rect, new Vector2(0.5f, 0.5f));

@@ -9,8 +9,9 @@ public class Level
 {
     public static Profile profile;
 
-    static int currentIndex;
-    static List<Symbol_> symbols;
+    static List<StationSymbol> symbols;
+    static List<Texture2D> passengers;
+    static Texture2D driver;
     static bool limitPassengers;
     static Train train;
 
@@ -18,12 +19,16 @@ public class Level
     {
         Level.train = train;
         profile = p;
-        currentIndex = 0;
-        symbols = new List<Symbol_>(p.selectedSymbols);
+        symbols = new List<StationSymbol>(p.selectedSymbols);
+        passengers = new List<Texture2D>(p.selectedPassengers);
+        driver = p.selectedDriver;
         limitPassengers = profile.limitPassengers;
+
+        train.driver.texture = driver;
+        train.SpeedLimit = Data.Profile.trainSpeed;
     }
 
-    public static Symbol_ getNextStationSymbol()
+    public static StationSymbol getNextStationSymbol()
     {
         if(symbols.Count == 0) { return null; }
 
@@ -37,7 +42,7 @@ public class Level
         return s;
     }
 
-    public static Symbol_ getRandomPossibleDestination()
+    public static StationSymbol getRandomPossibleDestination()
     {
         if (symbols.Count == 0) { return null; }
         var destinations = symbols.GetRange(0,symbols.Count);
@@ -47,7 +52,7 @@ public class Level
 
     public static Texture2D getRandomPassengerTexture()
     {
-        return profile.passengers[Random.Range(0, profile.passengers.Count)];
+        return passengers[Random.Range(0, passengers.Count)];
     }
 
     public static Passenger getNextPassenger()
@@ -68,13 +73,13 @@ public class Level
       
         var newstation = Station.Spawn(nextSymbol);
 
-        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.GetComponent<Passenger>().symbol.symbol_ == nextSymbol));
+        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.GetComponent<Passenger>().symbol.symbol == nextSymbol));
 
         foreach (var seat in newstation.seats)
         {
-            if(Random.value < (Level.profile.limitPassengers ? 0.9 : 0.4))
+            if(Random.value < (profile.limitPassengers ? 0.9 : 0.4))
             {
-                if (Level.profile.limitPassengers && toSpawn-- <= 0) {
+                if (profile.limitPassengers && toSpawn-- <= 0) {
                     continue; }
 
                 var p = getNextPassenger();
@@ -96,19 +101,18 @@ public class World : MonoBehaviour {
     public Station firstStation;
     public Train train;
     public Environment environment;
-    public Text score;
-    int _score = 0;
+    public Text scoreText;
+    int score = 0;
     bool quit = false;
     float _newStationDistance = 100;
     bool enablePassengerMove = false;
 
     private void Start()
     {
-        Level.set(Data.currentProfile, train);
+        Level.set(Data.Profile, train);
 
-        score.gameObject.SetActive(Level.profile.allowScore);
-        train.SpeedLimit = Data.currentProfile.trainSpeed;
-        train.driver.texture = Level.profile.selectedDriver;
+        scoreText.gameObject.SetActive(Level.profile.allowScore);
+        
 
         var toSpawn = train.seats.Count;
         foreach (var seat in firstStation.seats)
@@ -145,12 +149,12 @@ public class World : MonoBehaviour {
         }
 
 
-        var passengersToLeave = ClosestStation().seats.FindAll(s => s.passenger && s.passenger.symbol.symbol_ == ClosestStation().symbol.symbol_);
+        var passengersToLeave = ClosestStation().seats.FindAll(s => s.passenger && s.passenger.symbol.symbol == ClosestStation().symbol.symbol);
         foreach (var seat in passengersToLeave)
         {
             seat.leaveSeat();
-            _score+=3;
-            score.text = _score.ToString();
+            score+=3;
+            scoreText.text = score.ToString();
         }
 
     }
@@ -266,10 +270,10 @@ public class World : MonoBehaviour {
             {
                 var passenger = seat.passenger;
                 SwapSeat(sseat, seat);
-                if (passenger.symbol.symbol_ != ClosestStation().symbol.symbol_)
+                if (passenger.symbol.symbol != ClosestStation().symbol.symbol)
                 {
                     passenger.GetComponent<Animator>().Play("passenger_unhappy");
-                    score.text = (--_score).ToString();
+                    scoreText.text = (--score).ToString();
                 }
             }
         }

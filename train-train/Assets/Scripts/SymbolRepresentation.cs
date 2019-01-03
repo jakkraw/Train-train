@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Symbol : MonoBehaviour {
+public class SymbolRepresentation : MonoBehaviour {
     public Text text;
     public RawImage image;
-    public Symbol_ symbol_;
+    public StationSymbol symbol;
 
-    public void setSymbol(Symbol_ symbol_)
+    public void setSymbol(StationSymbol symbol)
     {
-        this.symbol_ = symbol_;
-        if(symbol_.text.Length != 0)
+        this.symbol = symbol;
+        if(symbol.text.Length != 0)
         {
-            text.text = symbol_.text;
+            text.text = symbol.text;
             image.gameObject.SetActive(false);
             text.gameObject.SetActive(true);
         }
-        else if(symbol_.texture != null)
+        else if(symbol.texture != null)
         {
-            image.texture = symbol_.texture;
+            image.texture = symbol.texture;
             image.gameObject.SetActive(true);
             text.gameObject.SetActive(false);
         }
