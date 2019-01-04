@@ -11,7 +11,9 @@ public class Train : MonoBehaviour {
     public RawImage driver;
 
     public Seat FreeSeat() {
-        return seats.Find(s => s.isEmpty());
+        var seat = seats.Find(s => s.isEmpty());
+        if (seat && seat.blocked) return null;
+        return seat;
     }
 
     public float AccelerationSpeed = 8;
@@ -38,6 +40,11 @@ public class Train : MonoBehaviour {
 
     public void Break() {
         Speed -= Time.deltaTime * BreakSpeed;
+    }
+
+    public void playLeave()
+    {
+        GetComponent<Animator>().Play("train_leave");
     }
 
   

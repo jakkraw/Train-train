@@ -26,6 +26,16 @@ public class Passenger : MonoBehaviour {
         image.texture = t;
     }
 
+    public void playHappy()
+    {
+
+    }
+
+    public void playSad()
+    {
+        GetComponent<Animator>().Play("passenger_unhappy");
+    }
+
     public void setActive(bool active)
     {
         var color = image.color;
