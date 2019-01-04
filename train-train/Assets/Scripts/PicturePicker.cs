@@ -246,7 +246,7 @@ public class PicturePicker : MonoBehaviour {
             if( path != null )
             {
                 // Create a Texture2D from the captured image
-                Texture2D texture = NativeCamera.LoadImageAtPath( path, 200, false );
+                Texture2D texture = NativeCamera.LoadImageAtPath( path, 128 * 128, false );
                 if( texture == null )
                 {
                     Debug.Log( "Couldn't load texture from " + path );
@@ -275,7 +275,7 @@ public class PicturePicker : MonoBehaviour {
     {
         List<Texture2D> textures = new List<Texture2D>();
         for( int i = 0; i < paths.Length; i++ )
-            textures.Add( NativeGallery.LoadImageAtPath( paths[i], 200, false) );
+            textures.Add( NativeGallery.LoadImageAtPath( paths[i], 128*128, false) );
         HandlePictureAddition( textures );
     }
 

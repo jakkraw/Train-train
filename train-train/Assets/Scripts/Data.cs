@@ -220,6 +220,12 @@ public static class Data
         Profile.ReconstructProfile();
         Debug.Log("Profile file was loaded.");
     }
+    
+    public static void reset()
+    {
+        All_Profiles = new ProfileList(Profile.testProfile());
+        Profile.ReconstructProfile();
+    }
 
     public static void save()
     {

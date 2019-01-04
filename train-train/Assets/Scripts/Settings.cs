@@ -9,7 +9,8 @@ using TMPro;
 public class Settings : MonoBehaviour
 {
     public Slider trainSpeedSlider;
-    public Toggle doesGameEndToogle;     public Toggle limitPassengers;
+    public Toggle doesGameEndToogle;
+    public Toggle limitPassengers;
     public Toggle allowScore;
     public TMP_Dropdown symbolType;
 
@@ -50,6 +51,12 @@ public class Settings : MonoBehaviour
         PicturePicker.picturePickerTarget = PicturePickerTarget.STATION_SYMBOL;
         onSymbolPicturePickExitClick();
         SceneManager.LoadScene( "PicturePicker" );
+    }
+
+    public void onResetProfileClick()
+    {
+        Data.reset();
+        this.Start();
     }
 
     public void Slider_Changed(float newValue)
@@ -170,6 +177,8 @@ public class Settings : MonoBehaviour
     {
         allowScore.isOn = Data.Profile.allowScore;
         doesGameEndToogle.isOn = Data.Profile.doesEnd;
-        limitPassengers.isOn = Data.Profile.limitPassengers;         symbolType.value = Data.Profile.symboltypeindex;
-        trainSpeedSlider.value = Data.Profile.trainSpeed;     }
+        limitPassengers.isOn = Data.Profile.limitPassengers;
+        symbolType.value = Data.Profile.symboltypeindex;
+        trainSpeedSlider.value = Data.Profile.trainSpeed;
+    }
 }
