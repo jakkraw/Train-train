@@ -8,7 +8,7 @@ public class Train : MonoBehaviour {
 
     public List<Seat> seats;
     public Transform middle;
-    public RawImage driver;
+    public Image driver;
 
     public Seat FreeSeat() {
         var seat = seats.Find(s => s.isEmpty());

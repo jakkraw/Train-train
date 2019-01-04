@@ -24,7 +24,7 @@ public class Level
         driver = p.selectedDriver;
         limitPassengers = profile.limitPassengers;
 
-        train.driver.texture = driver;
+        train.driver.sprite = Sprite.Create(driver, new Rect(0, 0, driver.width, driver.height) ,new Vector2(0,0));
         train.SpeedLimit = Data.Profile.trainSpeed;
     }
 
@@ -228,20 +228,15 @@ public class World : MonoBehaviour {
                 var trainPos = train.middle.position;
                 var station = ClosestStation();
                 var stationPos = station.middle.position;
-                if (trainPos.x < stationPos.x)
+                var k = Vector3.Distance(train.middle.position, station.middle.position) /(float)10;
+                var trainBehind = train.middle.position.x < station.middle.position.x;
+                if (k < 2.5)
                 {
-                    var k = Vector3.Distance(train.middle.position, station.middle.position) / 10.0f;
-                    if (k < 2.5)
+                    train.Break();
+                    if (train.Speed < 4 && trainBehind) train.Speed = 4;
+                    if (k < 0.1 || (k < 0.3 && !trainBehind))
                     {
-                        train.Break();
-                        if (train.Speed < 4) train.Speed = 4;
-                        if (k < 0.1)
-                        {
-                            if (enablePassengerMove)
-                            {
-                                train.Speed = 0;
-                            }
-                        }
+                       train.Speed = 0;
                     }
                 }
             }   
