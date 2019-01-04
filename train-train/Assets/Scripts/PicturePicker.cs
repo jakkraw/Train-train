@@ -17,6 +17,7 @@ public class PicturePicker : MonoBehaviour {
     public static PicturePickerTarget picturePickerTarget = PicturePickerTarget.PASSENGER;
     public GameObject imageTemplate;
     public GameObject selectedCounterTextBox;
+    private bool isInDeleteMode = false;
 
 	// Use this for initialization
 	void Start () {
@@ -43,6 +44,44 @@ public class PicturePicker : MonoBehaviour {
         }
         
         LoadFromProfile();
+    }
+
+    public void DeletePictureOnClick(Image image)
+    {
+        isInDeleteMode = !isInDeleteMode;
+        
+        Color color = image.color;
+        color.a = isInDeleteMode ? 0.4f : 0.0f;
+        image.color = color;
+    }
+
+    public bool isDeleteModeActive()
+    {
+        return isInDeleteMode;
+    }
+
+    public void HandleDeleteRequest( Texture2D texture2D, bool isSelected )
+    {
+        switch( picturePickerTarget )
+        {
+            case PicturePickerTarget.DRIVER:
+                Data.Profile.drivers.RemoveAll( t => t == texture2D );
+                if( Data.Profile.selectedDriver == texture2D )
+                    Data.Profile.selectedDriver = null;
+                break;
+
+            case PicturePickerTarget.PASSENGER:
+                Data.Profile.passengers.RemoveAll( t => t == texture2D );
+                Data.Profile.selectedPassengers.RemoveAll( t => t == texture2D );
+                break;
+
+            case PicturePickerTarget.STATION_SYMBOL:
+                Data.Profile.symbols.RemoveAll( t => t.texture != null ? t.texture == texture2D : false );
+                Data.Profile.selectedSymbols.RemoveAll( t => t.texture != null ? t.texture == texture2D : false );
+                break;
+        }
+        if( isSelected )
+            ModifySelectedCounter( -1 );
     }
 
     public void BackOnClick()
