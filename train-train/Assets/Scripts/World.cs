@@ -140,6 +140,10 @@ public class World : MonoBehaviour {
         HandleInput();
         MoveWorld();
         train.Decelerate();
+        if (quit)
+        {
+            quitGame();
+        }
 
         var rect = ClosestStation().GetComponent<BoxCollider2D>().bounds;
         enablePassengerMove = train.seats.All(seat => rect.Contains(seat.transform.position));
@@ -176,8 +180,7 @@ public class World : MonoBehaviour {
 
     private IEnumerator removeTrain()
     {
-        var anim = train.GetComponent<Animator>();
-        anim.Play("train_leave");
+        train.playLeave();
         yield return new WaitForSeconds(5);
         SceneManager.LoadScene("Menu");
 
@@ -192,11 +195,8 @@ public class World : MonoBehaviour {
         {
             Destroy(station.gameObject);
             var newStation = Level.spawnNextStation();
-            if(newStation == null && !quit)
-            {
+            if(newStation == null) {
                 quit = true;
-                quitGame();
-                train.GetComponent<Animator>().Play("train_leave");
             }
         }
             _newStationDistance = Random.Range(30, 70);
@@ -265,24 +265,37 @@ public class World : MonoBehaviour {
         if (gameObject.CompareTag("Train Seat"))
         {
             var seat = gameObject.GetComponent<Seat>();
-            var sseat = ClosestStation().FreeSeat();
-            if (!seat.isEmpty() && !sseat.blocked)
+            var passenger = seat.passenger;
+            if (passenger)
             {
-                var passenger = seat.passenger;
-                SwapSeat(sseat, seat);
-                if (passenger.symbol.symbol != ClosestStation().symbol.symbol)
+                var station_seat = ClosestStation().FreeSeat();
+                if (station_seat)
                 {
-                    passenger.GetComponent<Animator>().Play("passenger_unhappy");
-                    scoreText.text = (--score).ToString();
+                    passenger.image.canvas.sortingOrder = 2000;
+                    SwapSeat(station_seat, seat);
+                    if (passenger.symbol.symbol != ClosestStation().symbol.symbol) {
+                        passenger.playSad();
+                        scoreText.text = (--score).ToString();
+                    }
                 }
             }
+            
         }
 
         if (gameObject.CompareTag("Station Seat"))
         {
             var seat = gameObject.GetComponent<Seat>();
-            var train_seat = train.FreeSeat();
-            if(train_seat && !seat.blocked) { SwapSeat(train_seat, seat); }
+            var passenger = seat.passenger;
+            if (passenger)
+            {
+                var train_seat = train.FreeSeat();
+                if (train_seat)
+                {
+                    passenger.image.canvas.sortingOrder = 19;
+                    SwapSeat(train_seat, seat);
+                }
+            }
+            
         }
 
     }

@@ -14,4 +14,13 @@ public class MainMenu : MonoBehaviour {
     {
         SceneManager.LoadScene("Settings");
     }
+
+    public void onQuitClick()
+    {
+        Data.save();
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
 }
