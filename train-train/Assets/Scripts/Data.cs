@@ -61,6 +61,14 @@ public class Profile
     [NonSerialized]
     public List<StationSymbol> selectedSymbols;
 
+    // This is needed for persistance of selected symbols, first element is for digits, second for characters
+    // StationSymbol is poorly designed and needs refactor, but there is no time for that now
+    public string[] firstSymbolOfRange;
+    public string[] lastSymbolOfRange;
+    //temporary WA for persistance of selected symbols; same reason as above
+    [NonSerialized]
+    public List<StationSymbol> selectedSymbolsWA;
+
     [NonSerialized]
     public bool reconstructed = false;
 
@@ -122,6 +130,12 @@ public class Profile
             if (info.isSelected) { selectedSymbols.Add(symbol); }
         }
 
+        firstSymbolOfRange = new string[2];
+        firstSymbolOfRange[0] = "0";
+        firstSymbolOfRange[1] = "a";
+        lastSymbolOfRange = new string[2];
+        lastSymbolOfRange[0] = "9";
+        lastSymbolOfRange[1] = "z";
     }
 
     public static Profile testProfile()
@@ -194,7 +208,7 @@ public static class Data
     }
 
     public static ProfileList All_Profiles;
-    public static string destination = Application.persistentDataPath + "/profiles.bin";
+    public static string destination = Application.persistentDataPath + "/profiles2.bin";
     public static Profile Profile { get { return All_Profiles.currentProfile(); } }
     
 
