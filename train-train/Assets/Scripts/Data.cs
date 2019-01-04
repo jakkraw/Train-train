@@ -132,7 +132,12 @@ public class Profile
            p.passengers_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path))); 
         }
 
-        foreach (var path in new List<string>() { "Images/man", "Images/happy_face 1" })
+        foreach (var path in new List<string>() { "Images/businessman", "Images/doctor", "Images/girl", "Images/girl2", "Images/girl3", "Images/man2", "Images/student", "Images/woman", })
+        {
+            p.passengers_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
+        }
+
+        foreach (var path in new List<string>() { "Images/girl3", "Images/driver" })
         {
             p.drivers_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
         }
@@ -142,6 +147,11 @@ public class Profile
         foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" })
         {
             p.symbols_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path)));
+        }
+
+        foreach (var path in new List<string>() { "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner", "Images/gift", })
+        {
+            p.symbols_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
         }
 
         return p;
