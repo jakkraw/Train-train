@@ -45,9 +45,10 @@ public class Seat : MonoBehaviour
         var go = passenger.gameObject;
         passenger = null;
         blocked = true;
-        yield return new WaitForSeconds(3);
-        Destroy(go);
+        yield return new WaitForSeconds(1.5f);
         blocked = false;
+        yield return new WaitForSeconds(1.5f);
+        Destroy(go);
     }
 
     public void setActive(bool active)

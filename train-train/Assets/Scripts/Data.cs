@@ -7,17 +7,17 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class StationSymbol
+public class Symbol
 {
     public string text = "";
     public Texture2D texture = null;
 
-    public StationSymbol(string t)
+    public Symbol(string t)
     {
         text = t;
     }
 
-    public StationSymbol(Texture2D t)
+    public Symbol(Texture2D t)
     {
         texture = t;
     }
@@ -57,9 +57,9 @@ public class Profile
     [NonSerialized]
     public List<Texture2D> selectedPassengers;
     [NonSerialized]
-    public List<StationSymbol> symbols;
+    public List<Symbol> symbols;
     [NonSerialized]
-    public List<StationSymbol> selectedSymbols;
+    public List<Symbol> selectedSymbols;
 
     // This is needed for persistance of selected symbols, first element is for digits, second for characters
     // StationSymbol is poorly designed and needs refactor, but there is no time for that now
@@ -67,7 +67,7 @@ public class Profile
     public string[] lastSymbolOfRange;
     //temporary WA for persistance of selected symbols; same reason as above
     [NonSerialized]
-    public List<StationSymbol> selectedSymbolsWA;
+    public List<Symbol> selectedSymbolsWA;
 
     [NonSerialized]
     public bool reconstructed = false;
@@ -121,11 +121,11 @@ public class Profile
             if (info.isSelected) { selectedDriver = img; }
         }
 
-        symbols = new List<StationSymbol>();
-        selectedSymbols = new List<StationSymbol>();
+        symbols = new List<Symbol>();
+        selectedSymbols = new List<Symbol>();
         foreach (var info in symbols_info)
         {
-            var symbol = new StationSymbol(info.construct());
+            var symbol = new Symbol(info.construct());
             symbols.Add(symbol);
             if (info.isSelected) { selectedSymbols.Add(symbol); }
         }

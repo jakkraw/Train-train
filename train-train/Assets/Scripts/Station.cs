@@ -8,7 +8,7 @@ public class Station : MonoBehaviour {
     public List<Seat> seats;
     public Transform middle;
 
-    public static Station Spawn(StationSymbol s)
+    public static Station Spawn(Symbol s)
     {
         var station = Instantiate(Resources.Load<GameObject>("Station")).GetComponent<Station>();
         station.setSymbol(s);
@@ -20,7 +20,7 @@ public class Station : MonoBehaviour {
         return seats.Find(s => s.isEmpty());
     }
 
-    public void setSymbol(StationSymbol s)
+    public void setSymbol(Symbol s)
     {
         symbol.setSymbol(s);
     }

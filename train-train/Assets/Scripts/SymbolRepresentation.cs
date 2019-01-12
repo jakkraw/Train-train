@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public class SymbolRepresentation : MonoBehaviour {
     public Text text;
     public RawImage image;
-    public StationSymbol symbol;
+    public Symbol symbol;
 
-    public void setSymbol(StationSymbol symbol)
+    public void setSymbol(Symbol symbol)
     {
         this.symbol = symbol;
         if(symbol.text.Length != 0)

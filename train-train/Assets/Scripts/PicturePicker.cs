@@ -127,7 +127,7 @@ public class PicturePicker : MonoBehaviour {
                 return Data.Profile.selectedPassengers.Contains( texture );
 
             case PicturePickerTarget.STATION_SYMBOL:
-                StationSymbol symbol = new StationSymbol( texture );
+                Symbol symbol = new Symbol( texture );
                 return Data.Profile.selectedSymbols.Exists( s => s.texture == texture);
         }
     }
@@ -199,9 +199,9 @@ public class PicturePicker : MonoBehaviour {
 
             case PicturePickerTarget.STATION_SYMBOL:
                 {
-                    List<StationSymbol> symbols = new List<StationSymbol>();
+                    List<Symbol> symbols = new List<Symbol>();
                     for( int i = 0; i < textures.Count; i++ )
-                        symbols.Add( new StationSymbol( textures[i] ) );
+                        symbols.Add( new Symbol( textures[i] ) );
 
                     if( addToSelected )
                         Data.Profile.selectedSymbols.AddRange( symbols );
@@ -228,7 +228,7 @@ public class PicturePicker : MonoBehaviour {
             case PicturePickerTarget.STATION_SYMBOL:
                 {
                     List<Texture2D> textures = new List<Texture2D>();
-                    List<StationSymbol> symbols = Data.Profile.symbols;
+                    List<Symbol> symbols = Data.Profile.symbols;
                     for( int i = 0; i < symbols.Count; i++ )
                         if( symbols[i].texture )
                             textures.Add( symbols[i].texture );

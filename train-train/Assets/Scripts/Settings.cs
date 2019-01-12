@@ -56,7 +56,7 @@ public class Settings : MonoBehaviour
     public void onResetProfileClick()
     {
         Data.reset();
-        this.Start();
+        Start();
     }
 
     public void Slider_Changed(float newValue)
@@ -128,7 +128,7 @@ public class Settings : MonoBehaviour
         TMP_InputField inputFieldFrom = rangeSelection.transform.Find( "InputFrom" ).gameObject.GetComponent<TMP_InputField>();
         TMP_InputField inputFieldTo = rangeSelection.transform.Find( "InputTo" ).gameObject.GetComponent<TMP_InputField>();
 
-        var symbols = new List<StationSymbol>();
+        var symbols = new List<Symbol>();
         switch( Data.Profile.symboltypeindex )
         {
             case 0:
@@ -140,7 +140,7 @@ public class Settings : MonoBehaviour
                 int.TryParse(inputFieldTo.text, out e);
                 for(; i <= e; i++ )
                 {
-                    symbols.Add( new StationSymbol( i.ToString() ) );
+                    symbols.Add( new Symbol( i.ToString() ) );
                 }
                 Data.Profile.firstSymbolOfRange[0] = inputFieldFrom.text;
                 Data.Profile.lastSymbolOfRange[0] = inputFieldTo.text;
@@ -149,7 +149,7 @@ public class Settings : MonoBehaviour
             case 2:
                 for( char c = inputFieldFrom.text[0]; c <= inputFieldTo.text[0]; c++ )
                 {
-                    symbols.Add( new StationSymbol( c.ToString() ) );
+                    symbols.Add( new Symbol( c.ToString() ) );
                 }
                 Data.Profile.firstSymbolOfRange[1] = inputFieldFrom.text;
                 Data.Profile.lastSymbolOfRange[1] = inputFieldTo.text;

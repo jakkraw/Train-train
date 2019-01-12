@@ -1,18 +1,21 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 
-public class Train : MonoBehaviour {
+public class Train : MonoBehaviour
+{
 
     public List<Seat> seats;
     public Transform middle;
     public Image driver;
 
-    public Seat FreeSeat() {
+    public Seat FreeSeat()
+    {
         var seat = seats.Find(s => s.isEmpty());
-        if (seat && seat.blocked) return null;
+        if (seat && seat.blocked) {
+            return null;
+        }
+
         return seat;
     }
 
@@ -25,20 +28,22 @@ public class Train : MonoBehaviour {
     public float Speed {
         get { return _speed; }
         set {
-            _speed = Mathf.Min(SpeedLimit, value);
-            _speed = Mathf.Max(0, _speed);
+            _speed = Mathf.Clamp(value, 0f, SpeedLimit);
         }
     }
 
-    public void Accelerate() {
+    public void Accelerate()
+    {
         Speed += Time.deltaTime * AccelerationSpeed;
     }
 
-    public void Decelerate() {
+    public void Decelerate()
+    {
         Speed -= Time.deltaTime * DecelerationSpeed;
     }
 
-    public void Break() {
+    public void Break()
+    {
         Speed -= Time.deltaTime * BreakSpeed;
     }
 
@@ -47,5 +52,5 @@ public class Train : MonoBehaviour {
         GetComponent<Animator>().Play("train_leave");
     }
 
-  
+
 }

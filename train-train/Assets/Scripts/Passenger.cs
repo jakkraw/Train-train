@@ -1,14 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class Passenger : MonoBehaviour {
-
+public class Passenger : MonoBehaviour
+{
+    public Animator animator;
     public RawImage image;
     public SymbolRepresentation symbol;
-    public static Passenger GetPassenger(StationSymbol s, Texture2D t)
+    public static Passenger GetPassenger(Symbol s, Texture2D t)
     {
         var p = Instantiate(Resources.Load<GameObject>("Passenger")).GetComponent<Passenger>();
         p.setTexture(t);
@@ -16,7 +14,7 @@ public class Passenger : MonoBehaviour {
         return p;
     }
 
-    public void setDestination(StationSymbol s)
+    public void setDestination(Symbol s)
     {
         symbol.setSymbol(s);
     }
@@ -28,12 +26,12 @@ public class Passenger : MonoBehaviour {
 
     public void playHappy()
     {
-
+        animator.Play("passenger_happy");
     }
 
     public void playSad()
     {
-        GetComponent<Animator>().Play("passenger_unhappy");
+        animator.Play("passenger_unhappy");
     }
 
     public void setActive(bool active)
