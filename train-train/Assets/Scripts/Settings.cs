@@ -23,12 +23,14 @@ public class Settings : MonoBehaviour
     public void onPassengerPicturePickClick()
     {
         PicturePicker.picturePickerTarget = PicturePickerTarget.PASSENGER;
+        PicturePicker.backTarget = "Settings";
         SceneManager.LoadScene( "PicturePicker" );
     }
 
     public void onDriverPicturePickClick()
     {
         PicturePicker.picturePickerTarget = PicturePickerTarget.DRIVER;
+        PicturePicker.backTarget = "Settings";
         SceneManager.LoadScene( "PicturePicker" );
     }
 
@@ -48,6 +50,7 @@ public class Settings : MonoBehaviour
 
     public void onChangeSymbolPictureClick()
     {
+        PicturePicker.backTarget = "Settings";
         PicturePicker.picturePickerTarget = PicturePickerTarget.TEXTURE_SYMBOl;
         onSymbolPicturePickExitClick();
         SceneManager.LoadScene( "PicturePicker" );

@@ -5,9 +5,26 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
+
+    public void Start() {
+        var load = Data.Profile;
+    }
+
     public void onPlayClick()
     {
         SceneManager.LoadScene("Game");
+    }
+
+    public void onDriverClick() {
+        PicturePicker.picturePickerTarget = PicturePickerTarget.DRIVER;
+        PicturePicker.backTarget = "Menu";
+        SceneManager.LoadScene("PicturePicker");
+    }
+
+    public void onPassengerClick() {
+        PicturePicker.picturePickerTarget = PicturePickerTarget.PASSENGER;
+        PicturePicker.backTarget = "Menu";
+        SceneManager.LoadScene("PicturePicker");
     }
 
     public void onSettingsClick()

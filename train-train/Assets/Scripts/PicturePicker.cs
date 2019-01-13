@@ -14,6 +14,7 @@ public enum PicturePickerTarget {
 
 public class PicturePicker : MonoBehaviour {
 
+    public static string backTarget = "";
     public static PicturePickerTarget picturePickerTarget = PicturePickerTarget.PASSENGER;
     public GameObject imageTemplate;
     public GameObject selectedCounterTextBox;
@@ -80,7 +81,8 @@ public class PicturePicker : MonoBehaviour {
                     return;
                 break;
         }
-        SceneManager.LoadScene("Settings");
+        Data.save();
+        SceneManager.LoadScene(backTarget);
     }
 
     public void Update() {
@@ -178,7 +180,7 @@ public class PicturePicker : MonoBehaviour {
         NativeCamera.Permission permission = NativeCamera.TakePicture((path) => {
             if (path != null) {
                 // Create a Texture2D from the captured image
-                Texture2D texture = NativeCamera.LoadImageAtPath(path, 128 * 128, false);
+                Texture2D texture = NativeCamera.LoadImageAtPath(path, 700, false);
                 if (texture == null) {
                     Debug.Log("Couldn't load texture from " + path);
                     return;
@@ -203,7 +205,7 @@ public class PicturePicker : MonoBehaviour {
     private void HandlePictureAddition(string[] paths) {
         List<Texture2D> textures = new List<Texture2D>();
         for (int i = 0; i < paths.Length; i++)
-            textures.Add(NativeGallery.LoadImageAtPath(paths[i], 128 * 128, false));
+            textures.Add(NativeGallery.LoadImageAtPath(paths[i], 700, false));
         HandlePictureAddition(textures);
     }
 

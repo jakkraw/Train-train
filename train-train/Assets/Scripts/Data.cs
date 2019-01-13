@@ -9,7 +9,8 @@ using UnityEngine;
 public enum SymbolType {
     SimpleTextures,
     NumberRange,
-    Letters
+    Letters,
+    MultiplyTest
 };
 
 [Serializable]
@@ -61,6 +62,7 @@ public class Passengers {
 
     public void remove(Texture2D texture) {
         var found = find(texture);
+        found.texture.delete();
         passengers.Remove(found);
     }
 }
@@ -103,6 +105,7 @@ public class TextureSymbols {
 
     public void remove(Texture2D texture) {
         var found = find(texture);
+        found.texture.delete();
         textureSymbols.Remove(found);
     }
 }
@@ -136,6 +139,7 @@ public class Drivers {
 
     public void remove(Texture2D t) {
         var found = find(t);
+        found.texture.delete();
         drivers.Remove(found);
     }
 
@@ -160,14 +164,23 @@ public class STexture2D {
     [NonSerialized]
     private Texture2D _texture = null;
 
-    private byte[] bytes;
-    private string path;
+    private string path = null;
+
+    public void delete() {
+        File.Delete(path);
+    }
+
+    public static string generateID() {
+        return Guid.NewGuid().ToString("N");
+    }
 
     public Texture2D Texture {
         get {
             if (_texture == null) {
-                _texture = new Texture2D(1, 1);
-                _texture.LoadImage(bytes);
+                var file = File.OpenRead(path);
+                _texture = new Texture2D(0, 0);
+                _texture.LoadImage((byte[])new BinaryFormatter().Deserialize(file));
+                file.Close();
             }
 
             return _texture;
@@ -175,7 +188,10 @@ public class STexture2D {
 
         set {
             _texture = value;
-            bytes = _texture.EncodeToPNG();
+            if(path == null) path = Application.persistentDataPath + "/" + generateID() + ".png";
+            var file = File.Open(path, FileMode.Create);
+            new BinaryFormatter().Serialize(file, _texture.EncodeToPNG());
+            file.Close();
         }
     }
 
@@ -232,6 +248,8 @@ public class Profile {
                         letterMappings.Add(new SymbolMapping(letter.ToString()));
                     }
                     return letterMappings;
+                case SymbolType.MultiplyTest:
+                    return null;
             }
             return null;
         } 
@@ -307,6 +325,10 @@ public static class Data {
             reset();
         }
 
+        Profile.drivers.all();
+        Profile.passengers.all();
+        Profile.textureSymbols.all();
+
         Debug.Log("Profile file was loaded.");
     }
 
@@ -322,7 +344,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles11.bin";
+    public static string destination = Application.persistentDataPath + "/profiles12.bin";
 
 
 }
