@@ -323,7 +323,7 @@ Transform:
   m_LocalScale: {x: 0.914, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &128089417
 Prefab:
@@ -426,6 +426,16 @@ Prefab:
         type: 2}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224196558989267648, guid: d921ee6fe809f5040b30fe86322807c4,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224598337792242254, guid: d921ee6fe809f5040b30fe86322807c4,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 16.07
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d921ee6fe809f5040b30fe86322807c4, type: 2}
@@ -1143,7 +1153,7 @@ MonoBehaviour:
   - {fileID: 695070155}
   - {fileID: 1651015139}
   middle: {fileID: 258018272}
-  driver: {fileID: 1773028945}
+  driverImage: {fileID: 1773028945}
   AccelerationSpeed: 20
   DecelerationSpeed: 8
   BreakSpeed: 12
@@ -1395,7 +1405,7 @@ Transform:
   - {fileID: 913410015}
   - {fileID: 804143801}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &956482056
 MonoBehaviour:
@@ -1909,7 +1919,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1269273534
 GameObject:
@@ -2254,7 +2264,7 @@ RectTransform:
   - {fileID: 1357023021}
   - {fileID: 2019270821}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

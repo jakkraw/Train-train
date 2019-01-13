@@ -1,264 +1,328 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections;
-using System.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
+using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine;
 
-public class Symbol
-{
-    string _text = null;
-    Texture2D _texture = null;
-    public string text { get { return _text; } set { _text = value; _texture = null; } }
-    public Texture2D texture { get { return _texture; } set { _texture = value; _text = null; } }
+[Serializable]
+public enum SymbolType {
+    SimpleTextures,
+    NumberRange,
+    Letters
+};
 
-    public Symbol(string t)
-    {
-        text = t;
-    }
+[Serializable]
+public class SelectableSTexture2D {
+    public bool selected = false;
+    public STexture2D texture;
 
-    public Symbol(Texture2D t)
-    {
+    public SelectableSTexture2D(STexture2D t, bool s) {
         texture = t;
-    }
-
-    public bool IsEqual(Symbol symbol)
-    {
-        if(text == symbol.text && texture == symbol.texture) { return true; }
-        return false;
-    }
-
-    public bool IsEqual(Texture2D texture)
-    {
-        if (this.texture == texture) { return true; }
-        return false;
-    }
-
-    public bool IsEqual(string text)
-    {
-        if (this.text == text) { return true; }
-        return false;
+        selected = s;
     }
 }
 
 [Serializable]
-public class Profile
-{
-    [Serializable]
-    public class TextureInfo
-    {
+public class Passengers {
+    private List<SelectableSTexture2D> passengers = new List<SelectableSTexture2D>();
 
-        public TextureInfo(bool isSelected, Texture2D tex)
-        {
-            this.isSelected = isSelected;
-            this.bytes = tex.EncodeToPNG();
-        }
-
-        public Texture2D construct()
-        {
-            var tex = new Texture2D(1, 1);
-            tex.LoadImage(bytes);
-            return tex;
-        }
-
-        public bool isSelected;
-        public byte[] bytes;
-
+    public void add(Texture2D t) {
+        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        passengers.Add(selectable);
     }
 
-    [NonSerialized]
-    public List<Texture2D> drivers;
-    [NonSerialized]
-    public Texture2D selectedDriver;
-    [NonSerialized]
-    public List<Texture2D> passengers;
-    [NonSerialized]
-    public List<Texture2D> selectedPassengers;
-    [NonSerialized]
-    public List<Symbol> symbols;
-    [NonSerialized]
-    public List<Symbol> selectedSymbols;
+    public List<Texture2D> selected() {
+        return passengers.FindAll(st => st.selected).Select(a => a.texture.Texture).ToList();
+    }
 
-    // This is needed for persistance of selected symbols, first element is for digits, second for characters
-    // StationSymbol is poorly designed and needs refactor, but there is no time for that now
-    public string[] firstSymbolOfRange;
-    public string[] lastSymbolOfRange;
-    //temporary WA for persistance of selected symbols; same reason as above
-    [NonSerialized]
-    public List<Symbol> selectedSymbolsWA;
+    public List<Texture2D> all() {
+        return passengers.Select(a => a.texture.Texture).ToList();
+    }
 
-    [NonSerialized]
-    public bool reconstructed = false;
+    private SelectableSTexture2D find(Texture2D texture) {
+        return passengers.Find(p => p.texture.Texture == texture);
+    }
 
-    public int symboltypeindex = 0;
+    public void select(Texture2D texture) {
+        var found = find(texture);
+        found.selected = true;
+    }
+
+    public void deselect(Texture2D texture) {
+        var found = find(texture);
+        found.selected = false;
+    }
+
+    public bool isSelected(Texture2D texture) {
+        var found = find(texture);
+        return found.selected;
+    }
+
+    public void remove(Texture2D texture) {
+        var found = find(texture);
+        passengers.Remove(found);
+    }
+}
+
+[Serializable]
+public class TextureSymbols {
+    private List<SelectableSTexture2D> textureSymbols = new List<SelectableSTexture2D>();
+
+    public void add(Texture2D t) {
+        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        textureSymbols.Add(selectable);
+    }
+
+    public List<Texture2D> selected() {
+        return textureSymbols.FindAll(st => st.selected).Select(a => a.texture.Texture).ToList();
+    }
+
+    public List<Texture2D> all() {
+        return textureSymbols.Select(a => a.texture.Texture).ToList();
+    }
+
+    private SelectableSTexture2D find(Texture2D texture) {
+        return textureSymbols.Find(p => p.texture.Texture == texture);
+    }
+
+    public void select(Texture2D texture) {
+        var found = find(texture);
+        found.selected = true;
+    }
+
+    public void deselect(Texture2D texture) {
+        var found = find(texture);
+        found.selected = false;
+    }
+
+    public bool isSelected(Texture2D texture) {
+        var found = find(texture);
+        return found.selected;
+    }
+
+    public void remove(Texture2D texture) {
+        var found = find(texture);
+        textureSymbols.Remove(found);
+    }
+}
+
+[Serializable]
+public class Drivers {
+    private List<SelectableSTexture2D> drivers = new List<SelectableSTexture2D>();
+
+    public void add(Texture2D t) {
+        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        drivers.Add(selectable);
+    }
+
+    private SelectableSTexture2D find(Texture2D texture) {
+        return drivers.Find(p => p.texture.Texture == texture);
+    }
+
+    public void select(Texture2D t) {
+        foreach (var driver in drivers) {
+            driver.selected = false;
+        }
+
+        var found = find(t);
+        found.selected = true;
+    }
+
+    public bool isSelected(Texture2D texture) {
+        var found = find(texture);
+        return found.selected;
+    }
+
+    public void remove(Texture2D t) {
+        var found = find(t);
+        drivers.Remove(found);
+    }
+
+    public List<Texture2D> all() {
+        return drivers.Select(a => a.texture.Texture).ToList();
+    }
+
+    public Texture2D selected() {
+        var l = drivers.Find(st => st.selected);
+        if (l == null) { return null; }
+        return l.texture;
+    }
+
+    public void deselect(Texture2D texture) {
+        var found = find(texture);
+        found.selected = false;
+    }
+}
+
+[Serializable]
+public class STexture2D {
+    [NonSerialized]
+    private Texture2D _texture = null;
+
+    private byte[] bytes;
+    private string path;
+
+    public Texture2D Texture {
+        get {
+            if (_texture == null) {
+                _texture = new Texture2D(1, 1);
+                _texture.LoadImage(bytes);
+            }
+
+            return _texture;
+        }
+
+        set {
+            _texture = value;
+            bytes = _texture.EncodeToPNG();
+        }
+    }
+
+    public STexture2D(Texture2D texture) {
+        Texture = texture;
+    }
+
+    public static implicit operator Texture2D(STexture2D st) {
+        return st.Texture;
+    }
+
+}
+
+[Serializable]
+public class NumberRange {
+    public int begin;
+    public int end;
+}
+
+[Serializable]
+public class Letters {
+    public List<char> list = new List<char>();
+}
+
+[Serializable]
+public class Profile {
     public float trainSpeed = 25;
     public bool doesEnd = true;
     public bool limitPassengers = true;
     public bool allowScore = true;
 
-    public List<TextureInfo> passengers_info = new List<TextureInfo>();
-    public List<TextureInfo> drivers_info = new List<TextureInfo>();
-    public List<TextureInfo> symbols_info = new List<TextureInfo>();
+    public Drivers drivers = new Drivers();
+    public Passengers passengers = new Passengers();
 
+    public SymbolType symbolType = SymbolType.SimpleTextures;
+    public TextureSymbols textureSymbols;
+    public NumberRange numberRange;
+    public Letters letters;
 
-    public void PackProfile()
-    {
-        passengers_info.Clear();
-        foreach (var tex in passengers)
-            passengers_info.Add(new TextureInfo(selectedPassengers.Contains(tex), tex));
-
-        symbols_info.Clear();
-        foreach (var symbol in symbols)
-            symbols_info.Add(new TextureInfo(selectedSymbols.Exists(selected => selected.IsEqual(symbol)), symbol.texture));
-
-        drivers_info.Clear();
-        foreach (var tex in drivers)
-            drivers_info.Add(new TextureInfo(selectedDriver == tex, tex));
+    public List<SymbolMapping> Symbols {
+        get {
+            switch (symbolType) {
+                case SymbolType.SimpleTextures:
+                    return textureSymbols.selected().Select(t => new SymbolMapping(t)).ToList();
+                case SymbolType.NumberRange:
+                    var numberMappings = new List<SymbolMapping>();
+                    for(var i = numberRange.begin; i <= numberRange.end; i++) {
+                        numberMappings.Add(new SymbolMapping(i));
+                    }
+                    return numberMappings;
+                case SymbolType.Letters:
+                    var letterMappings = new List<SymbolMapping>();
+                    foreach(var letter in letters.list) {
+                        letterMappings.Add(new SymbolMapping(letter.ToString()));
+                    }
+                    return letterMappings;
+            }
+            return null;
+        } 
     }
 
-    public void ReconstructProfile()
-    {
-        if(reconstructed) { return; }
-        reconstructed = true;
+    public static Profile testProfile() {
 
-        this.passengers = new List<Texture2D>();
-        this.selectedPassengers = new List<Texture2D>();
-        foreach (var info in passengers_info)
-        {
-            var img = info.construct();
-            passengers.Add(img);
-            if (info.isSelected) { selectedPassengers.Add(img); }
+        var passengers = new Passengers();
+        foreach (var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
+            var texture = Resources.Load<Texture2D>(path);
+            passengers.add(texture);
+            passengers.select(texture);
         }
 
-        drivers = new List<Texture2D>();
-        selectedDriver = null;
-        foreach (var info in drivers_info)
-        {
-            var img = info.construct();
-            drivers.Add(img);
-            if (info.isSelected) { selectedDriver = img; }
+        foreach (var path in new List<string>() { "Images/businessman", "Images/doctor", "Images/girl", "Images/girl2", "Images/girl3", "Images/man2", "Images/student", "Images/woman", }) {
+            var texture = Resources.Load<Texture2D>(path);
+            passengers.add(texture);
         }
 
-        symbols = new List<Symbol>();
-        selectedSymbols = new List<Symbol>();
-        foreach (var info in symbols_info)
-        {
-            var symbol = new Symbol(info.construct());
-            symbols.Add(symbol);
-            if (info.isSelected) { selectedSymbols.Add(symbol); }
+        var drivers = new Drivers();
+        var driver1 = Resources.Load<Texture2D>("Images/girl3");
+        var driver2 = Resources.Load<Texture2D>("Images/driver");
+        drivers.add(driver1);
+        drivers.add(driver2);
+        drivers.select(driver2);
+
+        var textureSymbols = new TextureSymbols();
+        foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" }) {
+            textureSymbols.add(Resources.Load<Texture2D>(path));
         }
 
-        firstSymbolOfRange = new string[2];
-        firstSymbolOfRange[0] = "0";
-        firstSymbolOfRange[1] = "a";
-        lastSymbolOfRange = new string[2];
-        lastSymbolOfRange[0] = "9";
-        lastSymbolOfRange[1] = "z";
-    }
-
-    public static Profile testProfile()
-    {
-        var p = new Profile();
-
-        foreach(var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
-           p.passengers_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path))); 
+        foreach (var path in new List<string>() { "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner", "Images/gift", }) {
+            textureSymbols.add(Resources.Load<Texture2D>(path));
         }
 
-        foreach (var path in new List<string>() { "Images/businessman", "Images/doctor", "Images/girl", "Images/girl2", "Images/girl3", "Images/man2", "Images/student", "Images/woman", })
-        {
-            p.passengers_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
+        foreach (var texture in textureSymbols.all()) {
+            textureSymbols.select(texture);
         }
 
-        foreach (var path in new List<string>() { "Images/girl3", "Images/driver" })
-        {
-            p.drivers_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
-        }
+        var numberRange = new NumberRange {
+            begin = 1,
+            end = 10
+        };
 
-        p.drivers_info[0].isSelected = true;
+        var letters = new Letters {
+            list = new List<char>() { 'a', 'b', 'c' }
+        };
 
-        foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" })
-        {
-            p.symbols_info.Add(new TextureInfo(true, Resources.Load<Texture2D>(path)));
-        }
-
-        foreach (var path in new List<string>() { "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner", "Images/gift", })
-        {
-            p.symbols_info.Add(new TextureInfo(false, Resources.Load<Texture2D>(path)));
-        }
-
-        return p;
-    }
-}
-
-[Serializable]
-public class ProfileList
-{
-    public List<Profile> profiles = new List<Profile>();
-    public int index = -1;
-
-    public ProfileList(Profile profile)
-    {
-        index = 0;
-        profiles.Add(profile);
-        
-    }
-
-    public void addProfile(Profile profile) {
-        profiles.Add(profile);
-    }
-
-    public Profile currentProfile() {
-        var profile = profiles[index];
-        profile.ReconstructProfile();
-        return profile;
+        return new Profile {
+            drivers = drivers,
+            passengers = passengers,
+            symbolType = SymbolType.Letters,
+            textureSymbols = textureSymbols,
+            numberRange = numberRange,
+            letters = letters
+        };
     }
 }
 
 
-public static class Data
-{
-    static Data()
-    {
+public static class Data {
+    static Data() {
         load();
     }
 
-    public static void load()
-    {
-        if (File.Exists(destination))
-        {
-           var file = File.OpenRead(destination);
-           All_Profiles = (ProfileList)new BinaryFormatter().Deserialize(file);
+    public static void load() {
+
+        if (File.Exists(destination)) {
+            var file = File.OpenRead(destination);
+            Profile = (Profile)new BinaryFormatter().Deserialize(file);
             file.Close();
+        } else {
+            reset();
         }
-        else
-        {
-            All_Profiles =  new ProfileList(Profile.testProfile());
-        }
-       
-        Profile.ReconstructProfile();
+
         Debug.Log("Profile file was loaded.");
     }
-    
-    public static void reset()
-    {
-        All_Profiles = new ProfileList(Profile.testProfile());
-        Profile.ReconstructProfile();
+
+    public static void reset() {
+        Profile = Profile.testProfile();
     }
 
-    public static void save()
-    {
-        foreach (var profile in All_Profiles.profiles) profile.PackProfile();
+    public static void save() {
         var file = File.Open(destination, FileMode.Create);
-        new BinaryFormatter().Serialize(file, All_Profiles);
+        new BinaryFormatter().Serialize(file, Profile);
         file.Close();
         Debug.Log("Profile file was saved.");
     }
 
-    public static ProfileList All_Profiles;
-    public static string destination = Application.persistentDataPath + "/profiles2.bin";
-    public static Profile Profile { get { return All_Profiles.currentProfile(); } }
-    
+    public static Profile Profile;
+    public static string destination = Application.persistentDataPath + "/profiles11.bin";
+
 
 }

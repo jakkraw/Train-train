@@ -7,53 +7,62 @@ using UnityEngine.UI;
 
 public class Level
 {
-    public static Profile profile;
-    private static List<Symbol> symbols;
-    private static List<Texture2D> passengers;
-    private static Texture2D driver;
-    private static bool limitPassengers;
-    private static Train train;
+    private List<SymbolMapping> symbols;
+    private List<Texture2D> passengers;
+    private Train train;
+    private bool doesEnd;
+    private bool limitPassengers;
 
-    public static void set(Profile p, Train train)
-    {
-        Level.train = train;
-        profile = p;
-        symbols = new List<Symbol>(p.selectedSymbols);
-        passengers = new List<Texture2D>(p.selectedPassengers);
-        driver = p.selectedDriver;
-        limitPassengers = profile.limitPassengers;
+    public Level(Station firstStation, bool doesEnd, bool limitPassengers, Train train, List<SymbolMapping> symbols, List<Texture2D> passengers) {
+        this.symbols = symbols;
+        this.passengers = passengers;
+        this.train = train;
+        this.doesEnd = doesEnd;
+        this.limitPassengers = limitPassengers;
 
-        train.driver = driver;
-        train.SpeedLimit = Data.Profile.trainSpeed;
+        var toSpawn = train.seats.Count;
+        foreach (var seat in firstStation.seats) {
+            if (Random.value < (limitPassengers ? 0.9 : 0.4)) {
+                if (limitPassengers && toSpawn-- <= 0) {
+                    continue;
+                }
+
+                var p = getNextPassenger();
+                if (p != null) {
+                    seat.Place(p);
+                }
+            }
+
+        }
     }
 
-    public static Symbol getNextStationSymbol()
+    public SymbolMapping getNextStationSymbolMapping()
     {
         if (symbols.Count == 0) { return null; }
 
         var s = symbols[0];
         symbols.RemoveAt(0);
-        if (!profile.doesEnd) {
+        if (!doesEnd) {
             symbols.Add(s);
         }
 
         return s;
     }
 
-    public static Symbol getRandomPossibleDestination()
+    public Symbol getRandomPossibleDestination()
     {
         if (symbols.Count == 0) { return null; }
         var destinations = symbols.GetRange(0, symbols.Count);
         var next_index = System.Math.Min(Random.Range(0, destinations.Count), Random.Range(0, destinations.Count));
-        return destinations[next_index];
+        return destinations[next_index].stationSymbol();
     }
 
-    public static Texture2D getRandomPassengerTexture()
+    public Texture2D getRandomPassengerTexture()
     {
         return passengers[Random.Range(0, passengers.Count)];
     }
 
-    public static Passenger getNextPassenger()
+    public Passenger getNextPassenger()
     {
         var t = getRandomPassengerTexture();
         if (t == null) {
@@ -68,20 +77,20 @@ public class Level
         return Passenger.GetPassenger(d, t);
     }
 
-    public static Station spawnNextStation()
+    public Station spawnNextStation()
     {
-        var nextSymbol = getNextStationSymbol();
-        if (nextSymbol == null) {
+        var nextSymbolMapping = getNextStationSymbolMapping();
+        if (nextSymbolMapping == null) {
             return null;
         }
 
-        var newstation = Station.Spawn(nextSymbol);
-
-        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.symbolRepresentation.symbol == nextSymbol));
+        var newstation = Station.Spawn(nextSymbolMapping);
+       
+        var toSpawn = train.seats.Count(s => s.isEmpty() || newstation.doesMatch(s.passenger));
 
         foreach (var seat in newstation.seats) {
-            if (Random.value < (profile.limitPassengers ? 0.9 : 0.4)) {
-                if (profile.limitPassengers && toSpawn-- <= 0) {
+            if (Random.value < (Data.Profile.limitPassengers ? 0.9 : 0.4)) {
+                if (Data.Profile.limitPassengers && toSpawn-- <= 0) {
                     continue;
                 }
 
@@ -100,6 +109,7 @@ public class Level
 
 public class World : MonoBehaviour
 {
+    public Level level;
     public Station firstStation;
     public Train train;
     public Environment environment;
@@ -111,26 +121,12 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        Level.set(Data.Profile, train);
-
-        scoreText.gameObject.SetActive(Level.profile.allowScore);
-
-
-        var toSpawn = train.seats.Count;
-        foreach (var seat in firstStation.seats) {
-            if (Random.value < (Level.profile.limitPassengers ? 0.9 : 0.4)) {
-                if (Level.profile.limitPassengers && toSpawn-- <= 0) {
-                    continue;
-                }
-
-                var p = Level.getNextPassenger();
-                if (p != null) {
-                    seat.Place(p);
-                }
-            }
-
-        }
-
+        var passengers = Data.Profile.passengers.selected();
+        var symbols = Data.Profile.Symbols;
+        level = new Level(firstStation, Data.Profile.doesEnd, Data.Profile.limitPassengers, train, symbols, passengers);
+        train.SpeedLimit = Data.Profile.trainSpeed;
+        train.driver = Data.Profile.drivers.selected();
+        scoreText.gameObject.SetActive(Data.Profile.allowScore);
     }
 
     private void Update()
@@ -151,7 +147,7 @@ public class World : MonoBehaviour
         }
 
 
-        var passengersToLeave = station.seats.FindAll(s => s.passenger && s.passenger.symbol == station.symbol);
+        var passengersToLeave = station.seats.FindAll(s => (s.passenger && station.doesMatch(s.passenger)));
         foreach (var seat in passengersToLeave) {
             seat.leaveSeat();
             score += 3;
@@ -189,7 +185,7 @@ public class World : MonoBehaviour
         var stationPos = station.transform.position;
         if (Vector3.Distance(trainPos, stationPos) > _newStationDistance && trainPos.x > stationPos.x) {
             Destroy(station.gameObject);
-            var newStation = Level.spawnNextStation();
+            var newStation = level.spawnNextStation();
             if (newStation == null) {
                 quit = true;
             }
@@ -224,7 +220,7 @@ public class World : MonoBehaviour
         }
     }
 
-    private void movePassengerToStation(Seat seat, Station station)
+    private void reseatToStation(Seat seat, Station station)
     {
         var passenger = seat.passenger;
         if (!passenger) { return; }
@@ -240,7 +236,7 @@ public class World : MonoBehaviour
         }
     }
 
-    private void movePassengerToTrain(Seat seat, Train train)
+    private void reseatToTrain(Seat seat, Train train)
     {
         var passenger = seat.passenger;
         if (!passenger) { return; }
@@ -261,22 +257,18 @@ public class World : MonoBehaviour
         if (gameObject.CompareTag("Train Seat")) {
             var station = ClosestStation();
             var seat = gameObject.GetComponent<Seat>();
-            movePassengerToStation(seat, station);
+            reseatToStation(seat, station);
         }
 
         if (gameObject.CompareTag("Station Seat")) {
             var seat = gameObject.GetComponent<Seat>();
-            movePassengerToTrain(seat, train);
+            reseatToTrain(seat, train);
         }
     }
 
     private void HandleInput()
     {
-        bool anyTouch = false;
-
-        if (Input.touchCount > 0 || Input.GetMouseButton(0)) { anyTouch = true; }
-
-        Vector2 position = new Vector2();
+        Vector2? position = null;
 
         if (Input.touchCount > 0) {
             position = Input.touches[0].position;
@@ -288,13 +280,13 @@ public class World : MonoBehaviour
 
         var station = ClosestStation();
 
-        if (!anyTouch) {
+        if (!position.HasValue) {
             stopOnStation(train, station);
             return;
         }
 
         RaycastHit hit;
-        if (!Physics.Raycast(Camera.main.ScreenPointToRay(position), out hit, 500)) {
+        if (!Physics.Raycast(Camera.main.ScreenPointToRay(position.Value), out hit, 500)) {
             train.Break();
             return;
         }

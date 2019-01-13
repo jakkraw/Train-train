@@ -25,7 +25,7 @@
         </activity>
 		<provider
   android:name="com.yasirkula.unity.NativeCameraContentProvider"
-  android:authorities="GdanskUniversityOfTechnologyTrainTrainTeam"
+  android:authorities="com.PG.KIO.traintrain1"
   android:exported="false"
   android:grantUriPermissions="true" />
     </application>

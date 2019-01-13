@@ -48,7 +48,7 @@ public class Settings : MonoBehaviour
 
     public void onChangeSymbolPictureClick()
     {
-        PicturePicker.picturePickerTarget = PicturePickerTarget.STATION_SYMBOL;
+        PicturePicker.picturePickerTarget = PicturePickerTarget.TEXTURE_SYMBOl;
         onSymbolPicturePickExitClick();
         SceneManager.LoadScene( "PicturePicker" );
     }
@@ -72,36 +72,36 @@ public class Settings : MonoBehaviour
         changeSelectionButton.SetActive( false );
         rangeSelection.SetActive( false );
 
-        switch( Data.Profile.symboltypeindex )
+        switch( Data.Profile.symbolType )
         {
-            case 0:
+            case SymbolType.SimpleTextures:
                 changeSelectionButton.SetActive( true );
                 break;
-            case 1:{
+            case SymbolType.NumberRange:{
                     TMP_InputField inputField;
                     inputField = rangeSelection.transform.Find( "InputFrom" ).gameObject.GetComponent<TMP_InputField>();
                     inputField.contentType = TMP_InputField.ContentType.DecimalNumber;
                     inputField.characterLimit = 1;
-                    inputField.text = Data.Profile.firstSymbolOfRange[0];
+                    inputField.text = Data.Profile.numberRange.begin.ToString();
 
                     inputField = rangeSelection.transform.Find( "InputTo" ).gameObject.GetComponent<TMP_InputField>();
                     inputField.contentType = TMP_InputField.ContentType.DecimalNumber;
                     inputField.characterLimit = 1;
-                    inputField.text = Data.Profile.lastSymbolOfRange[0];
+                    inputField.text = Data.Profile.numberRange.end.ToString();
 
                     rangeSelection.SetActive( true );
                 }
                 break;
-            case 2:{
+            case SymbolType.Letters:{
                     TMP_InputField inputField;
                     inputField = rangeSelection.transform.Find( "InputFrom" ).gameObject.GetComponent<TMP_InputField>();
                     inputField.contentType = TMP_InputField.ContentType.Alphanumeric;
-                    inputField.text = Data.Profile.firstSymbolOfRange[1];
+                    inputField.text = Data.Profile.letters.list[0].ToString();
                     inputField.characterLimit = 1;
 
                     inputField = rangeSelection.transform.Find( "InputTo" ).gameObject.GetComponent<TMP_InputField>();
                     inputField.contentType = TMP_InputField.ContentType.Alphanumeric;
-                    inputField.text = Data.Profile.lastSymbolOfRange[1];
+                    inputField.text = Data.Profile.letters.list[Data.Profile.letters.list.Count - 1].ToString();
                     inputField.characterLimit = 1;
 
                     rangeSelection.SetActive( true );
@@ -112,50 +112,38 @@ public class Settings : MonoBehaviour
 
     public void Symbol_type_selected(System.Int32 newValue)
     {
-        if( Data.Profile.symboltypeindex == 0 )
-            Data.Profile.selectedSymbolsWA = Data.Profile.selectedSymbols;
-        Data.Profile.symboltypeindex = newValue;
+        Data.Profile.symbolType = (SymbolType)newValue;
         EnableSymbolSelectionEditFields();
         onSymbolRangeDeselected();
-        if( Data.Profile.symboltypeindex == 0 )
-            Data.Profile.selectedSymbols = Data.Profile.selectedSymbolsWA;
     }
 
     public void onSymbolRangeDeselected()
     {
-        GameObject popup = transform.Find( "SelectStationSymbolPopUp" ).gameObject;
-        GameObject rangeSelection = popup.transform.Find( "SymbolRange" ).gameObject;
-        TMP_InputField inputFieldFrom = rangeSelection.transform.Find( "InputFrom" ).gameObject.GetComponent<TMP_InputField>();
-        TMP_InputField inputFieldTo = rangeSelection.transform.Find( "InputTo" ).gameObject.GetComponent<TMP_InputField>();
+        GameObject popup = transform.Find("SelectStationSymbolPopUp").gameObject;
+        GameObject rangeSelection = popup.transform.Find("SymbolRange").gameObject;
+        TMP_InputField inputFieldFrom = rangeSelection.transform.Find("InputFrom").gameObject.GetComponent<TMP_InputField>();
+        TMP_InputField inputFieldTo = rangeSelection.transform.Find("InputTo").gameObject.GetComponent<TMP_InputField>();
 
         var symbols = new List<Symbol>();
-        switch( Data.Profile.symboltypeindex )
-        {
-            case 0:
-                symbols.AddRange( Data.Profile.selectedSymbols );
+        switch (Data.Profile.symbolType) {
+            case SymbolType.SimpleTextures:
                 break;
-            case 1:
+            case SymbolType.NumberRange:
                 int i, e;
                 int.TryParse(inputFieldFrom.text, out i);
                 int.TryParse(inputFieldTo.text, out e);
-                for(; i <= e; i++ )
-                {
-                    symbols.Add( new Symbol( i.ToString() ) );
-                }
-                Data.Profile.firstSymbolOfRange[0] = inputFieldFrom.text;
-                Data.Profile.lastSymbolOfRange[0] = inputFieldTo.text;
+                Data.Profile.numberRange.begin = i;
+                Data.Profile.numberRange.end = e;
                 break;
 
-            case 2:
-                for( char c = inputFieldFrom.text[0]; c <= inputFieldTo.text[0]; c++ )
-                {
-                    symbols.Add( new Symbol( c.ToString() ) );
+            case SymbolType.Letters:
+                var letters = new List<char>();
+                for (char c = inputFieldFrom.text[0]; c <= inputFieldTo.text[0]; c++) {
+                    letters.Add(c);
                 }
-                Data.Profile.firstSymbolOfRange[1] = inputFieldFrom.text;
-                Data.Profile.lastSymbolOfRange[1] = inputFieldTo.text;
+                Data.Profile.letters.list = letters;
                 break;
         }
-        Data.Profile.selectedSymbols = symbols;
     }
 
     public void OnToggleDoesGameEndClick(bool newValue)
@@ -178,7 +166,7 @@ public class Settings : MonoBehaviour
         allowScore.isOn = Data.Profile.allowScore;
         doesGameEndToogle.isOn = Data.Profile.doesEnd;
         limitPassengers.isOn = Data.Profile.limitPassengers;
-        symbolType.value = Data.Profile.symboltypeindex;
+        symbolType.value = (int)Data.Profile.symbolType;
         trainSpeedSlider.value = Data.Profile.trainSpeed;
     }
 }

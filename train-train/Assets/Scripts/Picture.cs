@@ -7,26 +7,19 @@ public class Picture : MonoBehaviour {
 
     public Image child;
 
-    void Start()
-    {
-        DrawSelected( GetComponentInParent<PicturePicker>().isSelected( GetComponent<Image>().sprite.texture ) );
-    }
-
-    public void onClick()
-    {
-        bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest( GetComponent<Image>().sprite.texture );
-        bool isDeleting = GetComponentInParent<PicturePicker>().isDeleteModeActive();
-        if(!isDeleting)
-            DrawSelected( isSelected );
-        else
-        {
-            GetComponentInParent<PicturePicker>().HandleDeleteRequest( GetComponent<Image>().sprite.texture, isSelected );
-            Destroy( gameObject );
+    public void onClick() {
+        bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest(GetComponent<Image>().sprite.texture);
+        if (GetComponentInParent<PicturePicker>().isDeleteModeActive()) {
+            GetComponentInParent<PicturePicker>().HandleDeleteRequest(GetComponent<Image>().sprite.texture, isSelected);
+            Destroy(gameObject);
         }
     }
 
-    public void DrawSelected(bool selectedState )
-    {
+    public void Update() {
+        DrawSelected(GetComponentInParent<PicturePicker>().isSelected(GetComponent<Image>().sprite.texture));
+    }
+
+    public void DrawSelected(bool selectedState) {
         Color color = child.color;
         color.a = selectedState ? 0.4f : 0.0f;
         child.color = color;
