@@ -76,8 +76,8 @@ public class PicturePicker : MonoBehaviour {
                 break;
 
             case PicturePickerTarget.STATION_SYMBOL:
-                Data.Profile.symbols.RemoveAll( t => t.texture != null ? t.texture == texture2D : false );
-                Data.Profile.selectedSymbols.RemoveAll( t => t.texture != null ? t.texture == texture2D : false );
+                Data.Profile.symbols.RemoveAll( t => t.IsEqual(texture2D));
+                Data.Profile.selectedSymbols.RemoveAll( t => t.IsEqual(texture2D));
                 break;
         }
         if( isSelected )
@@ -128,7 +128,7 @@ public class PicturePicker : MonoBehaviour {
 
             case PicturePickerTarget.STATION_SYMBOL:
                 Symbol symbol = new Symbol( texture );
-                return Data.Profile.selectedSymbols.Exists( s => s.texture == texture);
+                return Data.Profile.selectedSymbols.Exists( s => s.IsEqual(texture));
         }
     }
 
@@ -169,7 +169,7 @@ public class PicturePicker : MonoBehaviour {
                 break;
             
             case PicturePickerTarget.STATION_SYMBOL:
-                Data.Profile.selectedSymbols.RemoveAll( s => s.texture == texture );
+                Data.Profile.selectedSymbols.RemoveAll( s => s.IsEqual(texture));
                 break;
             default: break;
         }

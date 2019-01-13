@@ -11,7 +11,7 @@ public class SymbolRepresentation : MonoBehaviour {
     public void setSymbol(Symbol symbol)
     {
         this.symbol = symbol;
-        if(symbol.text.Length != 0)
+        if(symbol.text != null)
         {
             text.text = symbol.text;
             image.gameObject.SetActive(false);

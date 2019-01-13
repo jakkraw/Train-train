@@ -5,23 +5,27 @@ public class Passenger : MonoBehaviour
 {
     public Animator animator;
     public RawImage image;
-    public SymbolRepresentation symbol;
+    public SymbolRepresentation symbolRepresentation;
+
+    public Symbol symbol { get { return symbolRepresentation.symbol; } set { symbolRepresentation.setSymbol(value); } }
+    public Texture2D texture { get { return image.texture as Texture2D; } set { image.texture = value; } }
+    private bool _active = false;
+    public bool active {
+        get { return _active; }
+        set {
+            _active = value;
+            var color = image.color;
+            color.a = active ? 1f : 0.5f;
+            image.color = color;
+        }
+    }
+
     public static Passenger GetPassenger(Symbol s, Texture2D t)
     {
         var p = Instantiate(Resources.Load<GameObject>("Passenger")).GetComponent<Passenger>();
-        p.setTexture(t);
-        p.setDestination(s);
+        p.texture = t;
+        p.symbol = s;
         return p;
-    }
-
-    public void setDestination(Symbol s)
-    {
-        symbol.setSymbol(s);
-    }
-
-    public void setTexture(Texture2D t)
-    {
-        image.texture = t;
     }
 
     public void playHappy()
@@ -34,10 +38,8 @@ public class Passenger : MonoBehaviour
         animator.Play("passenger_unhappy");
     }
 
-    public void setActive(bool active)
+    public void playLeave()
     {
-        var color = image.color;
-        color.a = active ? 1f : 0.5f;
-        image.color = color;
+        animator.Play("passenger_leave");
     }
 }

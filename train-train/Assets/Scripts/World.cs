@@ -8,12 +8,11 @@ using UnityEngine.UI;
 public class Level
 {
     public static Profile profile;
-
-    static List<Symbol> symbols;
-    static List<Texture2D> passengers;
-    static Texture2D driver;
-    static bool limitPassengers;
-    static Train train;
+    private static List<Symbol> symbols;
+    private static List<Texture2D> passengers;
+    private static Texture2D driver;
+    private static bool limitPassengers;
+    private static Train train;
 
     public static void set(Profile p, Train train)
     {
@@ -24,7 +23,7 @@ public class Level
         driver = p.selectedDriver;
         limitPassengers = profile.limitPassengers;
 
-        train.driver.sprite = Sprite.Create(driver, new Rect(0, 0, driver.width, driver.height), new Vector2(0, 0));
+        train.driver = driver;
         train.SpeedLimit = Data.Profile.trainSpeed;
     }
 
@@ -57,10 +56,14 @@ public class Level
     public static Passenger getNextPassenger()
     {
         var t = getRandomPassengerTexture();
-        if (t == null) return null;
+        if (t == null) {
+            return null;
+        }
 
         var d = getRandomPossibleDestination();
-        if (d == null) return null;
+        if (d == null) {
+            return null;
+        }
 
         return Passenger.GetPassenger(d, t);
     }
@@ -68,11 +71,13 @@ public class Level
     public static Station spawnNextStation()
     {
         var nextSymbol = getNextStationSymbol();
-        if (nextSymbol == null) return null;
+        if (nextSymbol == null) {
+            return null;
+        }
 
         var newstation = Station.Spawn(nextSymbol);
 
-        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.GetComponent<Passenger>().symbol.symbol == nextSymbol));
+        var toSpawn = train.seats.Count(s => (s.isEmpty() || s.passenger.symbolRepresentation.symbol == nextSymbol));
 
         foreach (var seat in newstation.seats) {
             if (Random.value < (profile.limitPassengers ? 0.9 : 0.4)) {
@@ -93,17 +98,16 @@ public class Level
 
 }
 
-
 public class World : MonoBehaviour
 {
     public Station firstStation;
     public Train train;
     public Environment environment;
     public Text scoreText;
-    int score = 0;
-    bool quit = false;
-    float _newStationDistance = 100;
-    bool enablePassengerMove = false;
+    private int score = 0;
+    private bool quit = false;
+    private float _newStationDistance = 100;
+    private bool enablePassengerMove = false;
 
     private void Start()
     {
@@ -129,9 +133,8 @@ public class World : MonoBehaviour
 
     }
 
-    void Update()
+    private void Update()
     {
-
         SpawnStations();
         HandleInput();
         MoveWorld();
@@ -148,7 +151,7 @@ public class World : MonoBehaviour
         }
 
 
-        var passengersToLeave = station.seats.FindAll(s => s.passenger && s.passenger.symbol.symbol == ClosestStation().symbol.symbol);
+        var passengersToLeave = station.seats.FindAll(s => s.passenger && s.passenger.symbol == station.symbol);
         foreach (var seat in passengersToLeave) {
             seat.leaveSeat();
             score += 3;
@@ -157,7 +160,7 @@ public class World : MonoBehaviour
 
     }
 
-    void MoveWorld()
+    private void MoveWorld()
     {
         environment.SetMoveSpeed(-train.Speed);
         foreach (GameObject station in GameObject.FindGameObjectsWithTag("Station")) {
@@ -179,7 +182,7 @@ public class World : MonoBehaviour
 
     }
 
-    void SpawnStations()
+    private void SpawnStations()
     {
         var trainPos = train.transform.position;
         var station = ClosestStation();
@@ -194,13 +197,14 @@ public class World : MonoBehaviour
         _newStationDistance = Random.Range(30, 70);
     }
 
-    Station ClosestStation()
+    private Station ClosestStation()
     {
         var a = GameObject.FindGameObjectsWithTag("Station");
-        return a[0].GetComponent<Station>();
+        if(a.Count()>=1) { return a[0].GetComponent<Station>(); }
+        return null;
     }
 
-    void stopOnStation(Train train, Station station)
+    private void stopOnStation(Train train, Station station)
     {
         if (train.Speed != 0) {
             var trainPos = train.middle.position;
@@ -209,7 +213,10 @@ public class World : MonoBehaviour
             var trainBehind = train.middle.position.x < station.middle.position.x;
             if (k < 2.5) {
                 train.Break();
-                if (train.Speed < 4 && trainBehind) train.Speed = 4;
+                if (train.Speed < 4 && trainBehind) {
+                    train.Speed = 4;
+                }
+
                 if (k < 0.1 || (k < 0.3 && !trainBehind)) {
                     train.Speed = 0;
                 }
@@ -217,7 +224,7 @@ public class World : MonoBehaviour
         }
     }
 
-    void movePassengerToStation(Seat seat, Station station)
+    private void movePassengerToStation(Seat seat, Station station)
     {
         var passenger = seat.passenger;
         if (!passenger) { return; }
@@ -227,13 +234,13 @@ public class World : MonoBehaviour
         passenger.image.canvas.sortingOrder = 2000;
         station_seat.Place(seat.Remove());
 
-        if (passenger.symbol.symbol != station.symbol.symbol) {
+        if (passenger.symbolRepresentation.symbol != station.symbolRepresentation.symbol) {
             passenger.playSad();
             scoreText.text = (--score).ToString();
         }
     }
 
-    void movePassengerToTrain(Seat seat, Train train)
+    private void movePassengerToTrain(Seat seat, Train train)
     {
         var passenger = seat.passenger;
         if (!passenger) { return; }
@@ -244,30 +251,15 @@ public class World : MonoBehaviour
         train_seat.Place(seat.Remove());
     }
 
-    void HandleInput()
+    private void handleHit(GameObject gameObject)
     {
-        var station = ClosestStation();
-
-        if (Input.touchCount < 1) {
-            stopOnStation(train, station);
-            return;
-        }
-
-
-        RaycastHit hit;
-        if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.touches[0].position), out hit, 500)) {
-            train.Break();
-            return;
-        }
-
-        var gameObject = hit.collider.gameObject;
-
 
         if (gameObject.CompareTag("Accelerate")) {
             train.Accelerate();
         }
 
         if (gameObject.CompareTag("Train Seat")) {
+            var station = ClosestStation();
             var seat = gameObject.GetComponent<Seat>();
             movePassengerToStation(seat, station);
         }
@@ -276,6 +268,40 @@ public class World : MonoBehaviour
             var seat = gameObject.GetComponent<Seat>();
             movePassengerToTrain(seat, train);
         }
+    }
+
+    private void HandleInput()
+    {
+        bool anyTouch = false;
+
+        if (Input.touchCount > 0 || Input.GetMouseButton(0)) { anyTouch = true; }
+
+        Vector2 position = new Vector2();
+
+        if (Input.touchCount > 0) {
+            position = Input.touches[0].position;
+        }
+
+        if (Input.GetMouseButton(0)) {
+            position = Input.mousePosition;
+        }
+
+        var station = ClosestStation();
+
+        if (!anyTouch) {
+            stopOnStation(train, station);
+            return;
+        }
+
+        RaycastHit hit;
+        if (!Physics.Raycast(Camera.main.ScreenPointToRay(position), out hit, 500)) {
+            train.Break();
+            return;
+        }
+
+        var gameObject = hit.collider.gameObject;
+
+        handleHit(gameObject);
 
     }
 

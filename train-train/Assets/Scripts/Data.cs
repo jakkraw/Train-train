@@ -9,8 +9,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class Symbol
 {
-    public string text = "";
-    public Texture2D texture = null;
+    string _text = null;
+    Texture2D _texture = null;
+    public string text { get { return _text; } set { _text = value; _texture = null; } }
+    public Texture2D texture { get { return _texture; } set { _texture = value; _text = null; } }
 
     public Symbol(string t)
     {
@@ -20,6 +22,24 @@ public class Symbol
     public Symbol(Texture2D t)
     {
         texture = t;
+    }
+
+    public bool IsEqual(Symbol symbol)
+    {
+        if(text == symbol.text && texture == symbol.texture) { return true; }
+        return false;
+    }
+
+    public bool IsEqual(Texture2D texture)
+    {
+        if (this.texture == texture) { return true; }
+        return false;
+    }
+
+    public bool IsEqual(string text)
+    {
+        if (this.text == text) { return true; }
+        return false;
     }
 }
 
@@ -91,7 +111,7 @@ public class Profile
 
         symbols_info.Clear();
         foreach (var symbol in symbols)
-            symbols_info.Add(new TextureInfo(selectedSymbols.Exists(s => s.texture == symbol.texture), symbol.texture));
+            symbols_info.Add(new TextureInfo(selectedSymbols.Exists(selected => selected.IsEqual(symbol)), symbol.texture));
 
         drivers_info.Clear();
         foreach (var tex in drivers)
