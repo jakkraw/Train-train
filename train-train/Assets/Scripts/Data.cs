@@ -13,36 +13,37 @@ public enum SymbolType {
     MultiplyTest
 };
 
-[Serializable]
-public class SelectableSTexture2D {
-    public bool selected = false;
-    public STexture2D texture;
 
-    public SelectableSTexture2D(STexture2D t, bool s) {
-        texture = t;
+[Serializable]
+public class Selectable<T> {
+    public bool selected = false;
+    public T value;
+
+    public Selectable(T t, bool s) {
+        value = t;
         selected = s;
     }
 }
 
 [Serializable]
 public class Passengers {
-    private List<SelectableSTexture2D> passengers = new List<SelectableSTexture2D>();
+    private List<Selectable<STexture2D>> passengers = new List<Selectable<STexture2D>>();
 
     public void add(Texture2D t) {
-        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         passengers.Add(selectable);
     }
 
     public List<Texture2D> selected() {
-        return passengers.FindAll(st => st.selected).Select(a => a.texture.Texture).ToList();
+        return passengers.FindAll(st => st.selected).Select(a => a.value.Texture).ToList();
     }
 
     public List<Texture2D> all() {
-        return passengers.Select(a => a.texture.Texture).ToList();
+        return passengers.Select(a => a.value.Texture).ToList();
     }
 
-    private SelectableSTexture2D find(Texture2D texture) {
-        return passengers.Find(p => p.texture.Texture == texture);
+    private Selectable<STexture2D> find(Texture2D texture) {
+        return passengers.Find(p => p.value.Texture == texture);
     }
 
     public void select(Texture2D texture) {
@@ -62,30 +63,30 @@ public class Passengers {
 
     public void remove(Texture2D texture) {
         var found = find(texture);
-        found.texture.delete();
+        found.value.delete();
         passengers.Remove(found);
     }
 }
 
 [Serializable]
 public class TextureSymbols {
-    private List<SelectableSTexture2D> textureSymbols = new List<SelectableSTexture2D>();
+    private List<Selectable<STexture2D>> textureSymbols = new List<Selectable<STexture2D>>();
 
     public void add(Texture2D t) {
-        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         textureSymbols.Add(selectable);
     }
 
     public List<Texture2D> selected() {
-        return textureSymbols.FindAll(st => st.selected).Select(a => a.texture.Texture).ToList();
+        return textureSymbols.FindAll(st => st.selected).Select(a => a.value.Texture).ToList();
     }
 
     public List<Texture2D> all() {
-        return textureSymbols.Select(a => a.texture.Texture).ToList();
+        return textureSymbols.Select(a => a.value.Texture).ToList();
     }
 
-    private SelectableSTexture2D find(Texture2D texture) {
-        return textureSymbols.Find(p => p.texture.Texture == texture);
+    private Selectable<STexture2D> find(Texture2D texture) {
+        return textureSymbols.Find(p => p.value.Texture == texture);
     }
 
     public void select(Texture2D texture) {
@@ -105,22 +106,22 @@ public class TextureSymbols {
 
     public void remove(Texture2D texture) {
         var found = find(texture);
-        found.texture.delete();
+        found.value.delete();
         textureSymbols.Remove(found);
     }
 }
 
 [Serializable]
 public class Drivers {
-    private List<SelectableSTexture2D> drivers = new List<SelectableSTexture2D>();
+    private List<Selectable<STexture2D>> drivers = new List<Selectable<STexture2D>>();
 
     public void add(Texture2D t) {
-        var selectable = new SelectableSTexture2D(new STexture2D(t), false);
+        var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         drivers.Add(selectable);
     }
 
-    private SelectableSTexture2D find(Texture2D texture) {
-        return drivers.Find(p => p.texture.Texture == texture);
+    private Selectable<STexture2D> find(Texture2D texture) {
+        return drivers.Find(p => p.value.Texture == texture);
     }
 
     public void select(Texture2D t) {
@@ -139,18 +140,18 @@ public class Drivers {
 
     public void remove(Texture2D t) {
         var found = find(t);
-        found.texture.delete();
+        found.value.delete();
         drivers.Remove(found);
     }
 
     public List<Texture2D> all() {
-        return drivers.Select(a => a.texture.Texture).ToList();
+        return drivers.Select(a => a.value.Texture).ToList();
     }
 
     public Texture2D selected() {
         var l = drivers.Find(st => st.selected);
         if (l == null) { return null; }
-        return l.texture;
+        return l.value;
     }
 
     public void deselect(Texture2D texture) {
@@ -344,7 +345,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles12.bin";
+    public static string destination = Application.persistentDataPath + "/profiles13.bin";
 
 
 }
