@@ -8,9 +8,12 @@ public class Station : MonoBehaviour
     public List<Seat> seats;
     public Transform middle;
 
-    public static Station Spawn(SymbolMapping s)
+    public static Station Spawn(SymbolMapping s, float offset)
     {
         var station = Instantiate(Resources.Load<GameObject>("Station")).GetComponent<Station>();
+        var p = station.transform.position;
+        p.x += offset;
+        station.transform.position = p;
         station.mapping = s;
         station.symbolRepresentation.setSymbol(station.mapping.stationSymbol());
         return station;

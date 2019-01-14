@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Serializable]
 public class Symbol
 {
     string _text = null;
@@ -41,7 +42,7 @@ public class Symbol
     }
 }
 
-
+[Serializable]
 public class SymbolMapping
 {
     Symbol matcher;
@@ -51,6 +52,11 @@ public class SymbolMapping
         var symbol = new Symbol(t);
         this.matcher = symbol;
         matches.Add(symbol);
+    }
+
+    public SymbolMapping(Symbol symbol, List<Symbol> symbols) {
+        this.matcher = symbol;
+        matches = symbols;
     }
 
     public SymbolMapping(int i) {
@@ -67,6 +73,10 @@ public class SymbolMapping
 
     public Symbol stationSymbol() {
         return matcher;
+    }
+    
+    public Symbol randomMatching() {
+        return matches[UnityEngine.Random.Range(0, matches.Count)];
     }
 
     public List<Symbol> passengerSymbols() {

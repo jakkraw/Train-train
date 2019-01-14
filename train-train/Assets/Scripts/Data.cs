@@ -10,9 +10,49 @@ public enum SymbolType {
     SimpleTextures,
     NumberRange,
     Letters,
-    MultiplyTest
+    ExampleMath
 };
 
+[Serializable]
+public class SymbolMappings {
+    private List<Selectable<SymbolMapping>> mappings = new List<Selectable<SymbolMapping>>();
+
+    public void add(SymbolMapping t) {
+        mappings.Add(new Selectable<SymbolMapping>(t,false));
+    }
+
+    public List<SymbolMapping> selected() {
+        return mappings.FindAll(st => st.selected).Select(a => a.value).ToList();
+    }
+
+    public List<SymbolMapping> all() {
+        return mappings.Select(a => a.value).ToList();
+    }
+
+    private Selectable<SymbolMapping> find(SymbolMapping mapping) {
+        return mappings.Find(p => p.value == mapping);
+    }
+
+    public void select(SymbolMapping mapping) {
+        var found = find(mapping);
+        found.selected = true;
+    }
+
+    public void deselect(SymbolMapping mapping) {
+        var found = find(mapping);
+        found.selected = false;
+    }
+
+    public bool isSelected(SymbolMapping mapping) {
+        var found = find(mapping);
+        return found.selected;
+    }
+
+    public void remove(SymbolMapping mapping) {
+        var found = find(mapping);
+        mappings.Remove(found);
+    }
+}
 
 [Serializable]
 public class Selectable<T> {
@@ -231,6 +271,9 @@ public class Profile {
     public TextureSymbols textureSymbols;
     public NumberRange numberRange;
     public Letters letters;
+    public SymbolMappings customMappings;
+    public List<SymbolMapping> exampleMath;
+
 
     public List<SymbolMapping> Symbols {
         get {
@@ -249,15 +292,55 @@ public class Profile {
                         letterMappings.Add(new SymbolMapping(letter.ToString()));
                     }
                     return letterMappings;
-                case SymbolType.MultiplyTest:
-                    return null;
+                case SymbolType.ExampleMath:
+                    return exampleMath.ToList();
             }
             return null;
         } 
     }
 
-    public static Profile testProfile() {
+    public static List<SymbolMapping> exampleMathMappings() {
+        var exampleMath = new List<SymbolMapping>();
 
+        {
+            var a = new Symbol("12");
+            var l = new List<Symbol>() { new Symbol("2*6"), new Symbol("12"), new Symbol("3*4") };
+            var map = new SymbolMapping(a, l);
+            exampleMath.Add(map);
+        }
+
+        {
+            var a = new Symbol("5");
+            var l = new List<Symbol>() { new Symbol("5*1"), new Symbol("3+2"), new Symbol("8-3") };
+            var map = new SymbolMapping(a, l);
+            exampleMath.Add(map);
+        }
+
+        {
+            var a = new Symbol("15");
+            var l = new List<Symbol>() { new Symbol("20-5"), new Symbol("3*5"), new Symbol("60/4") };
+            var map = new SymbolMapping(a, l);
+            exampleMath.Add(map);
+        }
+
+        {
+            var a = new Symbol("23");
+            var l = new List<Symbol>() { new Symbol("20+3"), new Symbol("4*5+3"), new Symbol("26-3") };
+            var map = new SymbolMapping(a, l);
+            exampleMath.Add(map);
+        }
+
+        {
+            var a = new Symbol("100");
+            var l = new List<Symbol>() { new Symbol("50+50"), new Symbol("10^2"), new Symbol("99+1") };
+            var map = new SymbolMapping(a, l);
+            exampleMath.Add(map);
+        }
+
+        return exampleMath;
+    }
+
+    public static Passengers defaultPassengers() {
         var passengers = new Passengers();
         foreach (var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
             var texture = Resources.Load<Texture2D>(path);
@@ -270,13 +353,51 @@ public class Profile {
             passengers.add(texture);
         }
 
+        return passengers;
+    }
+
+    public static SymbolMappings defaultCustomMappings() {
+        return new SymbolMappings();
+    }
+
+
+    public static Profile defaultProfile() {
+        return new Profile {
+            drivers = defaultDrivers(),
+            passengers = defaultPassengers(),
+            symbolType = SymbolType.ExampleMath,
+            textureSymbols = defaultTextureSymbols(),
+            numberRange = defaultNumbers(),
+            letters = defaultLetters(),
+            customMappings = defaultCustomMappings(),
+            exampleMath = exampleMathMappings()
+        };
+    }
+
+    private static Drivers defaultDrivers() {
         var drivers = new Drivers();
         var driver1 = Resources.Load<Texture2D>("Images/girl3");
         var driver2 = Resources.Load<Texture2D>("Images/driver");
         drivers.add(driver1);
         drivers.add(driver2);
         drivers.select(driver2);
+        return drivers;
+    }
 
+    private static Letters defaultLetters() {
+        return new Letters {
+            list = new List<char>() { 'a', 'b', 'c' }
+        };
+    }
+
+    private static NumberRange defaultNumbers() {
+        return new NumberRange {
+            begin = 1,
+            end = 10
+        };
+    }
+
+    private static TextureSymbols defaultTextureSymbols() {
         var textureSymbols = new TextureSymbols();
         foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" }) {
             textureSymbols.add(Resources.Load<Texture2D>(path));
@@ -290,23 +411,7 @@ public class Profile {
             textureSymbols.select(texture);
         }
 
-        var numberRange = new NumberRange {
-            begin = 1,
-            end = 10
-        };
-
-        var letters = new Letters {
-            list = new List<char>() { 'a', 'b', 'c' }
-        };
-
-        return new Profile {
-            drivers = drivers,
-            passengers = passengers,
-            symbolType = SymbolType.Letters,
-            textureSymbols = textureSymbols,
-            numberRange = numberRange,
-            letters = letters
-        };
+        return textureSymbols;
     }
 }
 
@@ -334,7 +439,7 @@ public static class Data {
     }
 
     public static void reset() {
-        Profile = Profile.testProfile();
+        Profile = Profile.defaultProfile();
     }
 
     public static void save() {
@@ -345,7 +450,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles13.bin";
+    public static string destination = Application.persistentDataPath + "/profiles12313.bin";
 
 
 }

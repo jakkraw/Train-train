@@ -7,6 +7,7 @@ public class Train : MonoBehaviour
     public List<Seat> seats;
     public Transform middle;
     public Image driverImage;
+    public GameObject arrow;
     public Texture2D driver {  get { return driverImage.sprite.texture; } set {  driverImage.sprite = Sprite.Create(value, new Rect(0, 0, value.width, value.height), new Vector2(0, 0)); } }
     public Seat FreeSeat()
     {
@@ -34,7 +35,7 @@ public class Train : MonoBehaviour
 
     public void Decelerate()
     {
-        Speed -= Time.deltaTime * DecelerationSpeed;
+        Speed -= Time.deltaTime * SpeedLimit / 3;
     }
 
     public void Break()
