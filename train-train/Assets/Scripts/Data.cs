@@ -393,8 +393,8 @@ public class Profile {
         }
 
         {
-            var a = new Symbol("cherries");
-            var l = new List<Symbol>() { new Symbol(Resources.Load<Texture2D>("Images/cherries")) };
+            var a = new Symbol(Resources.Load<Texture2D>("Images/cherries"));
+            var l = new List<Symbol>() { new Symbol("cherries") };
             var map = new SymbolMapping(a, l);
             exampleEnglish.Add(map);
         }
@@ -528,7 +528,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles123123.bin";
+    public static string destination = Application.persistentDataPath + "/profiles1231232.bin";
 
 
 }
