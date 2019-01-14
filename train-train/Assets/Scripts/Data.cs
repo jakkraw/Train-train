@@ -18,7 +18,7 @@ public class SymbolMappings {
     private List<Selectable<SymbolMapping>> mappings = new List<Selectable<SymbolMapping>>();
 
     public void add(SymbolMapping t) {
-        mappings.Add(new Selectable<SymbolMapping>(t,false));
+        mappings.Add(new Selectable<SymbolMapping>(t, false));
     }
 
     public List<SymbolMapping> selected() {
@@ -65,11 +65,22 @@ public class Selectable<T> {
     }
 }
 
+public interface Pickable {
+    int NumberOfSelected();
+    List<Texture2D> AllTextures();
+    void Add(Texture2D texture);
+    void Select(Texture2D texture);
+    void Deselect(Texture2D texture);
+    bool IsSelected(Texture2D texture);
+    void Remove(Texture2D texture);
+    bool IsSelectedEnough();
+}
+
 [Serializable]
-public class Passengers {
+public class Passengers : Pickable {
     private List<Selectable<STexture2D>> passengers = new List<Selectable<STexture2D>>();
 
-    public void add(Texture2D t) {
+    public void Add(Texture2D t) {
         var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         passengers.Add(selectable);
     }
@@ -78,7 +89,7 @@ public class Passengers {
         return passengers.FindAll(st => st.selected).Select(a => a.value.Texture).ToList();
     }
 
-    public List<Texture2D> all() {
+    public List<Texture2D> AllTextures() {
         return passengers.Select(a => a.value.Texture).ToList();
     }
 
@@ -86,33 +97,41 @@ public class Passengers {
         return passengers.Find(p => p.value.Texture == texture);
     }
 
-    public void select(Texture2D texture) {
+    public void Select(Texture2D texture) {
         var found = find(texture);
         found.selected = true;
     }
 
-    public void deselect(Texture2D texture) {
+    public void Deselect(Texture2D texture) {
         var found = find(texture);
         found.selected = false;
     }
 
-    public bool isSelected(Texture2D texture) {
+    public bool IsSelected(Texture2D texture) {
         var found = find(texture);
         return found.selected;
     }
 
-    public void remove(Texture2D texture) {
+    public void Remove(Texture2D texture) {
         var found = find(texture);
         found.value.delete();
         passengers.Remove(found);
     }
+
+    public bool IsSelectedEnough() {
+        return selected().Count > 0;
+    }
+
+    public int NumberOfSelected() {
+        return selected().Count;
+    }
 }
 
 [Serializable]
-public class TextureSymbols {
+public class TextureSymbols : Pickable {
     private List<Selectable<STexture2D>> textureSymbols = new List<Selectable<STexture2D>>();
 
-    public void add(Texture2D t) {
+    public void Add(Texture2D t) {
         var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         textureSymbols.Add(selectable);
     }
@@ -121,7 +140,7 @@ public class TextureSymbols {
         return textureSymbols.FindAll(st => st.selected).Select(a => a.value.Texture).ToList();
     }
 
-    public List<Texture2D> all() {
+    public List<Texture2D> AllTextures() {
         return textureSymbols.Select(a => a.value.Texture).ToList();
     }
 
@@ -129,33 +148,41 @@ public class TextureSymbols {
         return textureSymbols.Find(p => p.value.Texture == texture);
     }
 
-    public void select(Texture2D texture) {
+    public void Select(Texture2D texture) {
         var found = find(texture);
         found.selected = true;
     }
 
-    public void deselect(Texture2D texture) {
+    public void Deselect(Texture2D texture) {
         var found = find(texture);
         found.selected = false;
     }
 
-    public bool isSelected(Texture2D texture) {
+    public bool IsSelected(Texture2D texture) {
         var found = find(texture);
         return found.selected;
     }
 
-    public void remove(Texture2D texture) {
+    public void Remove(Texture2D texture) {
         var found = find(texture);
         found.value.delete();
         textureSymbols.Remove(found);
     }
+
+    public bool IsSelectedEnough() {
+        return selected().Count > 0;
+    }
+
+    public int NumberOfSelected() {
+        return selected().Count;
+    }
 }
 
 [Serializable]
-public class Drivers {
+public class Drivers : Pickable {
     private List<Selectable<STexture2D>> drivers = new List<Selectable<STexture2D>>();
 
-    public void add(Texture2D t) {
+    public void Add(Texture2D t) {
         var selectable = new Selectable<STexture2D>(new STexture2D(t), false);
         drivers.Add(selectable);
     }
@@ -164,7 +191,7 @@ public class Drivers {
         return drivers.Find(p => p.value.Texture == texture);
     }
 
-    public void select(Texture2D t) {
+    public void Select(Texture2D t) {
         foreach (var driver in drivers) {
             driver.selected = false;
         }
@@ -173,18 +200,18 @@ public class Drivers {
         found.selected = true;
     }
 
-    public bool isSelected(Texture2D texture) {
+    public bool IsSelected(Texture2D texture) {
         var found = find(texture);
         return found.selected;
     }
 
-    public void remove(Texture2D t) {
+    public void Remove(Texture2D t) {
         var found = find(t);
         found.value.delete();
         drivers.Remove(found);
     }
 
-    public List<Texture2D> all() {
+    public List<Texture2D> AllTextures() {
         return drivers.Select(a => a.value.Texture).ToList();
     }
 
@@ -194,9 +221,17 @@ public class Drivers {
         return l.value;
     }
 
-    public void deselect(Texture2D texture) {
+    public void Deselect(Texture2D texture) {
         var found = find(texture);
         found.selected = false;
+    }
+
+    public bool IsSelectedEnough() {
+        return selected() != null;
+    }
+
+    public int NumberOfSelected() {
+        return selected() == null ? 0 : 1;
     }
 }
 
@@ -229,7 +264,10 @@ public class STexture2D {
 
         set {
             _texture = value;
-            if(path == null) path = Application.persistentDataPath + "/" + generateID() + ".png";
+            if (path == null) {
+                path = Application.persistentDataPath + "/" + generateID() + ".png";
+            }
+
             var file = File.Open(path, FileMode.Create);
             new BinaryFormatter().Serialize(file, _texture.EncodeToPNG());
             file.Close();
@@ -282,13 +320,13 @@ public class Profile {
                     return textureSymbols.selected().Select(t => new SymbolMapping(t)).ToList();
                 case SymbolType.NumberRange:
                     var numberMappings = new List<SymbolMapping>();
-                    for(var i = numberRange.begin; i <= numberRange.end; i++) {
+                    for (var i = numberRange.begin; i <= numberRange.end; i++) {
                         numberMappings.Add(new SymbolMapping(i));
                     }
                     return numberMappings;
                 case SymbolType.Letters:
                     var letterMappings = new List<SymbolMapping>();
-                    foreach(var letter in letters.list) {
+                    foreach (var letter in letters.list) {
                         letterMappings.Add(new SymbolMapping(letter.ToString()));
                     }
                     return letterMappings;
@@ -296,7 +334,7 @@ public class Profile {
                     return exampleMath.ToList();
             }
             return null;
-        } 
+        }
     }
 
     public static List<SymbolMapping> exampleMathMappings() {
@@ -344,13 +382,13 @@ public class Profile {
         var passengers = new Passengers();
         foreach (var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
             var texture = Resources.Load<Texture2D>(path);
-            passengers.add(texture);
-            passengers.select(texture);
+            passengers.Add(texture);
+            passengers.Select(texture);
         }
 
         foreach (var path in new List<string>() { "Images/businessman", "Images/doctor", "Images/girl", "Images/girl2", "Images/girl3", "Images/man2", "Images/student", "Images/woman", }) {
             var texture = Resources.Load<Texture2D>(path);
-            passengers.add(texture);
+            passengers.Add(texture);
         }
 
         return passengers;
@@ -378,9 +416,9 @@ public class Profile {
         var drivers = new Drivers();
         var driver1 = Resources.Load<Texture2D>("Images/girl3");
         var driver2 = Resources.Load<Texture2D>("Images/driver");
-        drivers.add(driver1);
-        drivers.add(driver2);
-        drivers.select(driver2);
+        drivers.Add(driver1);
+        drivers.Add(driver2);
+        drivers.Select(driver2);
         return drivers;
     }
 
@@ -400,15 +438,15 @@ public class Profile {
     private static TextureSymbols defaultTextureSymbols() {
         var textureSymbols = new TextureSymbols();
         foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" }) {
-            textureSymbols.add(Resources.Load<Texture2D>(path));
+            textureSymbols.Add(Resources.Load<Texture2D>(path));
         }
 
         foreach (var path in new List<string>() { "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner", "Images/gift", }) {
-            textureSymbols.add(Resources.Load<Texture2D>(path));
+            textureSymbols.Add(Resources.Load<Texture2D>(path));
         }
 
-        foreach (var texture in textureSymbols.all()) {
-            textureSymbols.select(texture);
+        foreach (var texture in textureSymbols.AllTextures()) {
+            textureSymbols.Select(texture);
         }
 
         return textureSymbols;
@@ -431,15 +469,16 @@ public static class Data {
             reset();
         }
 
-        Profile.drivers.all();
-        Profile.passengers.all();
-        Profile.textureSymbols.all();
+        Profile.drivers.AllTextures();
+        Profile.passengers.AllTextures();
+        Profile.textureSymbols.AllTextures();
 
         Debug.Log("Profile file was loaded.");
     }
 
     public static void reset() {
         Profile = Profile.defaultProfile();
+        File.Delete(destination);
     }
 
     public static void save() {
@@ -450,7 +489,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles12313.bin";
+    public static string destination = Application.persistentDataPath + "/profiles123123.bin";
 
 
 }

@@ -35,7 +35,7 @@ public class Train : MonoBehaviour
 
     public void Decelerate()
     {
-        Speed -= Time.deltaTime * SpeedLimit / 3;
+        Speed -= Time.deltaTime * SpeedLimit / 7;
     }
 
     public void Break()

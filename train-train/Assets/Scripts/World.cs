@@ -195,7 +195,6 @@ public class World : MonoBehaviour {
             var k = Vector3.Distance(train.middle.position, station.middle.position) / (float)10;
             var trainBehind = train.middle.position.x < station.middle.position.x;
             if (k < 2.5) {
-                train.Break();
                 if (train.Speed < 4 && trainBehind) {
                     train.Speed = 4;
                 }

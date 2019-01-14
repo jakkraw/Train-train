@@ -8,11 +8,7 @@ public class Picture : MonoBehaviour {
     public Image child;
 
     public void onClick() {
-        bool isSelected = GetComponentInParent<PicturePicker>().HandleSelectRequest(GetComponent<Image>().sprite.texture);
-        if (GetComponentInParent<PicturePicker>().isDeleteModeActive()) {
-            GetComponentInParent<PicturePicker>().HandleDeleteRequest(GetComponent<Image>().sprite.texture, isSelected);
-            Destroy(gameObject);
-        }
+        GetComponentInParent<PicturePicker>().HandleSelectRequest(GetComponent<Image>().sprite.texture, gameObject);
     }
 
     public void Update() {

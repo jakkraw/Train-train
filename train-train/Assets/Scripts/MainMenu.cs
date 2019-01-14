@@ -16,15 +16,11 @@ public class MainMenu : MonoBehaviour {
     }
 
     public void onDriverClick() {
-        PicturePicker.picturePickerTarget = PicturePickerTarget.DRIVER;
-        PicturePicker.backTarget = "Menu";
-        SceneManager.LoadScene("PicturePicker");
+        PicturePicker.Modify(Data.Profile.drivers);
     }
 
     public void onPassengerClick() {
-        PicturePicker.picturePickerTarget = PicturePickerTarget.PASSENGER;
-        PicturePicker.backTarget = "Menu";
-        SceneManager.LoadScene("PicturePicker");
+        PicturePicker.Modify(Data.Profile.passengers);
     }
 
     public void onSettingsClick()
