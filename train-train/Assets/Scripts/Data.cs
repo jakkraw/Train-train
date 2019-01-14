@@ -10,7 +10,8 @@ public enum SymbolType {
     SimpleTextures,
     NumberRange,
     Letters,
-    ExampleMath
+    ExampleMath,
+    ExampleEnglish
 };
 
 [Serializable]
@@ -311,6 +312,7 @@ public class Profile {
     public Letters letters;
     public SymbolMappings customMappings;
     public List<SymbolMapping> exampleMath;
+    public List<SymbolMapping> exampleEnglish;
 
 
     public List<SymbolMapping> Symbols {
@@ -332,6 +334,8 @@ public class Profile {
                     return letterMappings;
                 case SymbolType.ExampleMath:
                     return exampleMath.ToList();
+                case SymbolType.ExampleEnglish:
+                    return exampleEnglish.ToList();
             }
             return null;
         }
@@ -378,6 +382,40 @@ public class Profile {
         return exampleMath;
     }
 
+    public static List<SymbolMapping> exampleEnglishMappings() {
+        var exampleEnglish = new List<SymbolMapping>();
+
+        {
+            var a = new Symbol("carrot");
+            var l = new List<Symbol>() { new Symbol(Resources.Load<Texture2D>("Images/carrot"))};
+            var map = new SymbolMapping(a, l);
+            exampleEnglish.Add(map);
+        }
+
+        {
+            var a = new Symbol("cherries");
+            var l = new List<Symbol>() { new Symbol(Resources.Load<Texture2D>("Images/cherries")) };
+            var map = new SymbolMapping(a, l);
+            exampleEnglish.Add(map);
+        }
+
+        {
+            var a = new Symbol("watermelon");
+            var l = new List<Symbol>() { new Symbol(Resources.Load<Texture2D>("Images/watermelon")) };
+            var map = new SymbolMapping(a, l);
+            exampleEnglish.Add(map);
+        }
+
+        {
+            var a = new Symbol("grapes");
+            var l = new List<Symbol>() { new Symbol(Resources.Load<Texture2D>("Images/grapes")) };
+            var map = new SymbolMapping(a, l);
+            exampleEnglish.Add(map);
+        }
+
+        return exampleEnglish;
+    }
+
     public static Passengers defaultPassengers() {
         var passengers = new Passengers();
         foreach (var path in new List<string>() { "Images/Bee", "Images/Monkey", "Images/Mouse" }) {
@@ -408,7 +446,8 @@ public class Profile {
             numberRange = defaultNumbers(),
             letters = defaultLetters(),
             customMappings = defaultCustomMappings(),
-            exampleMath = exampleMathMappings()
+            exampleMath = exampleMathMappings(),
+            exampleEnglish = exampleEnglishMappings()
         };
     }
 
