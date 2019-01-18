@@ -527,7 +527,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageTemplate: {fileID: 1356373336277908, guid: 7273f9888ed8def498c46595a965ebd1,
     type: 2}
-  selectedCounterTextBox: {fileID: 1527921185}
+  selectedCounterTextBox: {fileID: 1527921187}
 --- !u!1 &441016974
 GameObject:
   m_ObjectHideFlags: 0

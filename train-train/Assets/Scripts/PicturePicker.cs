@@ -9,7 +9,7 @@ public class PicturePicker : MonoBehaviour {
     public static string PreviousScene = "";
     public static Pickable pickable = Data.Profile.drivers;
     public GameObject imageTemplate;
-    public GameObject selectedCounterTextBox;
+    public TextMeshProUGUI selectedCounterTextBox;
     private bool isInDeleteMode = false;
 
 
@@ -32,24 +32,10 @@ public class PicturePicker : MonoBehaviour {
         image.color = color;
     }
 
-    public bool isDeleteModeActive() {
-        return isInDeleteMode;
-    }
-
-    public void HandleDeleteRequest(Texture2D texture2D) {
-        pickable.Remove(texture2D);
-    }
-
     public void BackOnClick() {
         if (!pickable.IsSelectedEnough()) { return; }
         Data.save();
         SceneManager.LoadScene(PreviousScene);
-    }
-
-    public void Update() {
-        TextMeshProUGUI text = selectedCounterTextBox.GetComponent<TextMeshProUGUI>();
-        var count = pickable.NumberOfSelected();
-        text.text = count.ToString();
     }
 
     public bool isSelected(Texture2D texture) {
@@ -57,74 +43,57 @@ public class PicturePicker : MonoBehaviour {
     }
 
     public void HandleSelectRequest(Texture2D texture, GameObject gameObject) {
+        if (isSelected(texture)) 
+            pickable.Deselect(texture);
+        else 
+            pickable.Select(texture);
 
         if (isInDeleteMode) {
-            HandleDeleteRequest(texture);
+            pickable.Remove(texture);
             Destroy(gameObject);
-            return;
         }
-        if (isSelected(texture)) {
-            unselect(texture);
-        } else {
-            select(texture);
-        }
-    }
 
-    private void unselect(Texture2D texture) {
-        pickable.Deselect(texture);
-    }
-
-    private void select(Texture2D texture) {
-        pickable.Select(texture);
-
-    }
-
-    private void AddToProfile(Texture2D texture) {
-        pickable.Add(texture);
+        selectedCounterTextBox.text = pickable.NumberOfSelected().ToString();
     }
 
     public void TakePictureOnClick(int maxSize = -1) {
-        NativeCamera.Permission permission = NativeCamera.TakePicture((path) => {
-            if (path != null) {
-                // Create a Texture2D from the captured image
-                Texture2D texture = NativeCamera.LoadImageAtPath(path, 700, false);
-                if (texture == null) {
-                    Debug.Log("Couldn't load texture from " + path);
-                    return;
-                }
+        NativeCamera.TakePicture((path) => {
+            if (path == null)
+                return;
 
-                //NativeGallery.SaveImageToGallery(texture.EncodeToJPG(), "TrainTrain", "{0}.png", null /*fuck error handling, what can go wrong?*//*);
+            Texture2D texture = NativeCamera.LoadImageAtPath(path, 700, false);
+            if(texture != null)
                 HandlePictureAddition(new List<Texture2D> { texture });
-            }
         }, maxSize);
-        //((GameObject) Instantiate( imageTemplate, transform )).GetComponent<Image>().color = Random.ColorHSV();
     }
 
     public void AddPicturesFromGalleryOnClick() {
-        if (!NativeGallery.IsMediaPickerBusy()) {
-            if (NativeGallery.CanSelectMultipleFilesFromGallery()) {
-                NativeGallery.GetImagesFromGallery((paths) => HandlePictureAddition(paths), "Select pictures", "image/*");
-            } else {
-                NativeGallery.GetImageFromGallery((path) => HandlePictureAddition(new[] { path }), "Select picture", "image/*");
-            }
-        }
+        if( NativeGallery.IsMediaPickerBusy() )
+            return;
+
+        if (NativeGallery.CanSelectMultipleFilesFromGallery())
+            NativeGallery.GetImagesFromGallery((paths) => HandlePictureAddition(paths), "Select pictures", "image/*");
+        else
+            NativeGallery.GetImageFromGallery((path) => HandlePictureAddition(new[] { path }), "Select picture", "image/*");
     }
 
     private void HandlePictureAddition(string[] paths) {
         List<Texture2D> textures = new List<Texture2D>();
-        for (int i = 0; i < paths.Length; i++) {
-            textures.Add(NativeGallery.LoadImageAtPath(paths[i], 700, false));
+        for (int i = 0; i < paths.Length; i++ ){
+            Texture2D texture = NativeGallery.LoadImageAtPath(paths[i], 700, false);
+            if( texture != null)
+                textures.Add(texture);
         }
-
         HandlePictureAddition(textures);
     }
 
     private void HandlePictureAddition(List<Texture2D> textures) {
         DrawPictures(textures);
-        textures.ForEach(t => AddToProfile(t));
+        textures.ForEach(t => pickable.Add(t));
     }
 
     private void DrawPictures(List<Texture2D> textures) {
+        selectedCounterTextBox.text = pickable.NumberOfSelected().ToString();
         for (int i = 0; i < textures.Count; i++) {
             Rect rect = new Rect(0, 0, textures[i].width, textures[i].height);
             Sprite sprite = Sprite.Create(textures[i], rect, new Vector2(0.5f, 0.5f));

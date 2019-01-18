@@ -9,9 +9,10 @@ public class Picture : MonoBehaviour {
 
     public void onClick() {
         GetComponentInParent<PicturePicker>().HandleSelectRequest(GetComponent<Image>().sprite.texture, gameObject);
+        Start();
     }
 
-    public void Update() {
+    public void Start() {
         DrawSelected(GetComponentInParent<PicturePicker>().isSelected(GetComponent<Image>().sprite.texture));
     }
 
