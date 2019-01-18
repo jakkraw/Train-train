@@ -11,7 +11,8 @@ public enum SymbolType {
     NumberRange,
     Letters,
     ExampleMath,
-    ExampleEnglish
+    ExampleEnglish,
+    CustomMapping
 };
 
 [Serializable]

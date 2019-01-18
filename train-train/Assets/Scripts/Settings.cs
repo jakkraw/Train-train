@@ -11,6 +11,10 @@ public class Settings : MonoBehaviour {
     public Toggle limitPassengers;
     public Toggle allowScore;
     public TMP_Dropdown symbolType;
+    public TMP_InputField inputFieldFromDigits, inputFieldToDigits;
+    public TMP_InputField inputFieldFromLetters, inputFieldToLetters;
+    public GameObject SelectStationSymbolPopUp, DigitsRangeSelection, LettersRangeSelection,
+                      ChangeSelectedPicturesButton, ChangeSelectedCustomButton;
 
     public void onBackClick() {
         Data.save();
@@ -18,20 +22,22 @@ public class Settings : MonoBehaviour {
     }
 
     public void onSymbolPicturePickClick() {
-        GameObject popup = transform.Find("SelectStationSymbolPopUp").gameObject;
-        EnableSymbolSelectionEditFields();
-        popup.SetActive(true);
+        ShowSymbolEditFields();
+        SelectStationSymbolPopUp.SetActive(true);
     }
 
     public void onSymbolPicturePickExitClick() {
-        onSymbolRangeDeselected();
-        GameObject popup = transform.Find("SelectStationSymbolPopUp").gameObject;
-        popup.SetActive(false);
+        SaveInputFields();
+        SelectStationSymbolPopUp.SetActive(false);
     }
 
     public void onChangeSymbolPictureClick() {
-        onSymbolPicturePickExitClick();
         PicturePicker.Modify(Data.Profile.textureSymbols);        
+    }
+
+    public void onChangeSymbolCustomClick()
+    {
+        //PicturePicker.Modify( Data.Profile. );
     }
 
     public void onResetProfileClick() {
@@ -43,80 +49,49 @@ public class Settings : MonoBehaviour {
         Data.Profile.trainSpeed = newValue;
     }
 
-    private void EnableSymbolSelectionEditFields() {
-        GameObject popup = transform.Find("SelectStationSymbolPopUp").gameObject;
-        GameObject changeSelectionButton = popup.transform.Find("ChangeSelectedPicturesButton").gameObject;
-        GameObject rangeSelection = popup.transform.Find("SymbolRange").gameObject;
-        changeSelectionButton.SetActive(false);
-        rangeSelection.SetActive(false);
+    private void ShowSymbolEditFields() {
+        ChangeSelectedPicturesButton.SetActive(false);
+        DigitsRangeSelection.SetActive(false);
+        LettersRangeSelection.SetActive(false);
+        ChangeSelectedCustomButton.SetActive(false);
 
         switch (Data.Profile.symbolType) {
             case SymbolType.SimpleTextures:
-                changeSelectionButton.SetActive(true);
+                ChangeSelectedPicturesButton.SetActive(true);
                 break;
-            case SymbolType.NumberRange: {
-                    TMP_InputField inputField;
-                    inputField = rangeSelection.transform.Find("InputFrom").gameObject.GetComponent<TMP_InputField>();
-                    inputField.contentType = TMP_InputField.ContentType.DecimalNumber;
-                    inputField.characterLimit = 1;
-                    inputField.text = Data.Profile.numberRange.begin.ToString();
-
-                    inputField = rangeSelection.transform.Find("InputTo").gameObject.GetComponent<TMP_InputField>();
-                    inputField.contentType = TMP_InputField.ContentType.DecimalNumber;
-                    inputField.characterLimit = 1;
-                    inputField.text = Data.Profile.numberRange.end.ToString();
-
-                    rangeSelection.SetActive(true);
-                }
+            case SymbolType.NumberRange:
+                inputFieldFromDigits.text = Data.Profile.numberRange.begin.ToString();
+                inputFieldToDigits.text = Data.Profile.numberRange.end.ToString();
+                DigitsRangeSelection.SetActive(true);
                 break;
-            case SymbolType.Letters: {
-                    TMP_InputField inputField;
-                    inputField = rangeSelection.transform.Find("InputFrom").gameObject.GetComponent<TMP_InputField>();
-                    inputField.contentType = TMP_InputField.ContentType.Alphanumeric;
-                    inputField.text = Data.Profile.letters.list[0].ToString();
-                    inputField.characterLimit = 1;
-
-                    inputField = rangeSelection.transform.Find("InputTo").gameObject.GetComponent<TMP_InputField>();
-                    inputField.contentType = TMP_InputField.ContentType.Alphanumeric;
-                    inputField.text = Data.Profile.letters.list[Data.Profile.letters.list.Count - 1].ToString();
-                    inputField.characterLimit = 1;
-
-                    rangeSelection.SetActive(true);
-                }
+            case SymbolType.Letters:
+                inputFieldFromLetters.text = Data.Profile.letters.list[0].ToString();
+                inputFieldToLetters.text = Data.Profile.letters.list[Data.Profile.letters.list.Count - 1].ToString();
+                LettersRangeSelection.SetActive(true);
+                break;
+            case SymbolType.CustomMapping:
+                ChangeSelectedCustomButton.SetActive(true);
                 break;
         }
     }
 
     public void Symbol_type_selected(int newValue) {
         Data.Profile.symbolType = (SymbolType)newValue;
-        EnableSymbolSelectionEditFields();
-        onSymbolRangeDeselected();
+        ShowSymbolEditFields();
+        SaveInputFields();
     }
 
-    public void onSymbolRangeDeselected() {
-        GameObject popup = transform.Find("SelectStationSymbolPopUp").gameObject;
-        GameObject rangeSelection = popup.transform.Find("SymbolRange").gameObject;
-        TMP_InputField inputFieldFrom = rangeSelection.transform.Find("InputFrom").gameObject.GetComponent<TMP_InputField>();
-        TMP_InputField inputFieldTo = rangeSelection.transform.Find("InputTo").gameObject.GetComponent<TMP_InputField>();
-
-        var symbols = new List<Symbol>();
-        switch (Data.Profile.symbolType) {
-            case SymbolType.SimpleTextures:
-                break;
+    public void SaveInputFields() {
+         switch (Data.Profile.symbolType) {
             case SymbolType.NumberRange:
-                int i, e;
-                int.TryParse(inputFieldFrom.text, out i);
-                int.TryParse(inputFieldTo.text, out e);
-                Data.Profile.numberRange.begin = i;
-                Data.Profile.numberRange.end = e;
+                Data.Profile.numberRange.begin = int.Parse(inputFieldFromDigits.text);
+                Data.Profile.numberRange.end = int.Parse(inputFieldToDigits.text);
                 break;
 
             case SymbolType.Letters:
-                var letters = new List<char>();
-                for (char c = inputFieldFrom.text[0]; c <= inputFieldTo.text[0]; c++) {
-                    letters.Add(c);
-                }
-                Data.Profile.letters.list = letters;
+                Data.Profile.letters.list.Clear();
+                for (char c = inputFieldFromLetters.text[0]; c <= inputFieldToLetters.text[0]; c++)
+                    Data.Profile.letters.list.Add(c);
                 break;
         }
     }
