@@ -13,6 +13,8 @@ public class SymbolRepresentation : MonoBehaviour
 
     public void setSymbol(Symbol symbol)
     {
+        Debug.Assert(symbol.text != null ^ symbol.texture != null, "Bad sybol state!" );
+
         this.symbol = symbol;
         if (symbol.text != null) {
             text.text = symbol.text;

@@ -37,7 +37,7 @@ public class Settings : MonoBehaviour {
 
     public void onChangeSymbolCustomClick()
     {
-        //PicturePicker.Modify( Data.Profile. );
+        CustomSetPicker.Modify( Data.Profile.customMappings );
     }
 
     public void onResetProfileClick() {

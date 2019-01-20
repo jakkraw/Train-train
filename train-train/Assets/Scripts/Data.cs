@@ -54,6 +54,16 @@ public class SymbolMappings {
         var found = find(mapping);
         mappings.Remove(found);
     }
+
+    public bool IsSelectedEnough()
+    {
+        return selected().Count > 0;
+    }
+
+    public int NumberOfSelected()
+    {
+        return selected().Count;
+    }
 }
 
 [Serializable]
@@ -337,6 +347,8 @@ public class Profile {
                     return exampleMath.ToList();
                 case SymbolType.ExampleEnglish:
                     return exampleEnglish.ToList();
+                case SymbolType.CustomMapping:
+                    return customMappings.selected();
             }
             return null;
         }
@@ -434,7 +446,16 @@ public class Profile {
     }
 
     public static SymbolMappings defaultCustomMappings() {
-        return new SymbolMappings();
+        var symbol = new Symbol(Resources.Load<Texture2D>( "Images/businessman"));
+        var symbol_list = new List<Symbol>();
+        symbol_list.Add( symbol );
+        var mapping = new SymbolMapping( symbol, symbol_list );
+        mapping.select( symbol );
+        var symbolMappings = new SymbolMappings();
+        symbolMappings.add( mapping );
+        symbolMappings.select( mapping );
+        symbolMappings.add( new SymbolMapping( Resources.Load<Texture2D>( "Images/doctor" ) ) );
+        return symbolMappings;
     }
 
 
