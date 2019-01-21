@@ -96,7 +96,7 @@ public class CustomSetPicker : MonoBehaviour {
 
     public void HandleTextSymbolAddition() {
         var mapping = new List<SymbolMapping>();
-        mapping.Add(new SymbolMapping( input.text, true ) );
+        mapping.Add(new SymbolMapping( input.text ) );
         HandleSymbolMappingAddition(mapping);
     }
 

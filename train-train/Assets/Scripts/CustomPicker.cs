@@ -22,7 +22,7 @@ public class CustomPicker : MonoBehaviour {
 
     // Use this for initialization
     private void Start() {
-        DrawCustoms(pickable.passengerSymbols());
+        DrawCustoms(Data.Profile.customMappings.allMatchees());
     }
 
     public void DeletePictureOnClick(Image image) {
@@ -50,7 +50,7 @@ public class CustomPicker : MonoBehaviour {
             pickable.select(symbol);
 
         if (isInDeleteMode) {
-            pickable.remove(symbol);
+            Data.Profile.customMappings.removeMatchee(symbol);
             Destroy(gameObject);
         }
 
@@ -89,26 +89,26 @@ public class CustomPicker : MonoBehaviour {
     }
 
     private void HandlePictureAddition(List<Texture2D> textures) {
-        List<Selectable<Symbol> > mapping = new List<Selectable<Symbol> >();
-        textures.ForEach( t => mapping.Add( new Selectable<Symbol>( new Symbol(t), false ) ) );
+        List<Symbol> mapping = new List<Symbol>();
+        textures.ForEach( t => mapping.Add( new Symbol(t)) );
         HandleSymbolAddition(mapping);
     }
 
     public void HandleTextSymbolAddition() {
-        List<Selectable<Symbol> > mapping = new List<Selectable<Symbol> >();
-        mapping.Add(new Selectable<Symbol>( new Symbol( input.text ), false ));
+        List<Symbol> mapping = new List<Symbol>();
+        mapping.Add(new Symbol( input.text ));
         HandleSymbolAddition(mapping);
     }
 
-    private void HandleSymbolAddition( List<Selectable<Symbol>> mapping ) {
-        mapping.ForEach( t => pickable.passengerSymbols().Add( t ) );
+    private void HandleSymbolAddition( List<Symbol> mapping ) {
+        mapping.ForEach( t => Data.Profile.customMappings.addMatchee( t ) );
         DrawCustoms( mapping );
     }
 
-    private void DrawCustoms(List<Selectable<Symbol> > symbols) {
+    private void DrawCustoms(List<Symbol> symbols) {
         selectedCounterTextBox.text = pickable.NumberOfSelected().ToString();
         for (int i = 0; i < symbols.Count; i++) {
-            Instantiate( customTemplate, transform ).GetComponent<CustomMapping>().setSymbol(symbols[i].value);
+            Instantiate( customTemplate, transform ).GetComponent<CustomMapping>().setSymbol(symbols[i]);
         }
     }
 }

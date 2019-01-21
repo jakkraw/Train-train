@@ -18,6 +18,35 @@ public enum SymbolType {
 [Serializable]
 public class SymbolMappings {
     private List<Selectable<SymbolMapping>> mappings = new List<Selectable<SymbolMapping>>();
+    private List<Symbol> allMatches = new List<Symbol>();
+
+    public void addMatchee(Symbol symbol) {
+        bool exists = true;
+
+        if(symbol.text != null) {
+            var all_strings = allMatches.FindAll( s => s.text != null && s.texture == null );
+            exists = all_strings.Any( s => s.text.Equals(symbol.text) );
+        }
+        else if(symbol.texture != null) {
+            var all_textures = allMatches.FindAll( t => t.texture != null && t.text == null );
+            exists = all_textures.Any( t => t.texture.path.Equals(symbol.texture.path) );
+        }
+
+        if( !exists )
+            allMatches.Add( symbol );
+    }
+
+    public void removeMatchee(Symbol symbol) {
+        mappings.ForEach( t => t.value.deselect( symbol ));
+    }
+
+    public Symbol getMatchee( SymbolMappingPickDescriptor symbol ){
+        return allMatches.Find( i => symbol.mappsTo( i ) );
+    }
+
+    public List<Symbol> allMatchees() {
+        return allMatches;
+    }
 
     public void add(SymbolMapping t) {
         mappings.Add(new Selectable<SymbolMapping>(t, false));
@@ -55,13 +84,11 @@ public class SymbolMappings {
         mappings.Remove(found);
     }
 
-    public bool IsSelectedEnough()
-    {
+    public bool IsSelectedEnough() {
         return selected().Count > 0;
     }
 
-    public int NumberOfSelected()
-    {
+    public int NumberOfSelected() {
         return selected().Count;
     }
 }
@@ -252,7 +279,7 @@ public class STexture2D {
     [NonSerialized]
     private Texture2D _texture = null;
 
-    private string path = null;
+    public string path = null;
 
     public void delete() {
         File.Delete(path);
@@ -321,7 +348,7 @@ public class Profile {
     public TextureSymbols textureSymbols;
     public NumberRange numberRange;
     public Letters letters;
-    public SymbolMappings customMappings;
+    public SymbolMappings customMappings = new SymbolMappings();
     public List<SymbolMapping> exampleMath;
     public List<SymbolMapping> exampleEnglish;
 
@@ -445,32 +472,28 @@ public class Profile {
         return passengers;
     }
 
-    public static SymbolMappings defaultCustomMappings() {
-        var symbol = new Symbol(Resources.Load<Texture2D>( "Images/businessman"));
-        var symbol_list = new List<Symbol>();
-        symbol_list.Add( symbol );
-        var mapping = new SymbolMapping( symbol, symbol_list );
-        mapping.select( symbol );
-        var symbolMappings = new SymbolMappings();
-        symbolMappings.add( mapping );
-        symbolMappings.select( mapping );
-        symbolMappings.add( new SymbolMapping( Resources.Load<Texture2D>( "Images/doctor" ) ) );
-        return symbolMappings;
+    public SymbolMappings defaultCustomMappings()
+    {
+        defaultTextureSymbols().AllTextures().ForEach( t => customMappings.addMatchee( new Symbol( t ) ) );
+
+        var mapping = new SymbolMapping( Resources.Load<Texture2D>( "Images/businessman") );
+        customMappings.add( new SymbolMapping( Resources.Load<Texture2D>( "Images/doctor" ) ) );
+        customMappings.add( mapping );
+        customMappings.select( mapping );
+
+        return customMappings;
     }
 
-
-    public static Profile defaultProfile() {
-        return new Profile {
-            drivers = defaultDrivers(),
-            passengers = defaultPassengers(),
-            symbolType = SymbolType.ExampleMath,
-            textureSymbols = defaultTextureSymbols(),
-            numberRange = defaultNumbers(),
-            letters = defaultLetters(),
-            customMappings = defaultCustomMappings(),
-            exampleMath = exampleMathMappings(),
-            exampleEnglish = exampleEnglishMappings()
-        };
+    public void defaultProfile() {
+        drivers = defaultDrivers();
+        passengers = defaultPassengers();
+        symbolType = SymbolType.ExampleMath;
+        textureSymbols = defaultTextureSymbols();
+        numberRange = defaultNumbers();
+        letters = defaultLetters();
+        customMappings = defaultCustomMappings();
+        exampleMath = exampleMathMappings();
+        exampleEnglish = exampleEnglishMappings();
     }
 
     private static Drivers defaultDrivers() {
@@ -497,19 +520,13 @@ public class Profile {
     }
 
     private static TextureSymbols defaultTextureSymbols() {
+        var paths = new List<string>() {"Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry",
+                                         "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner",
+                                         "Images/gift" };
+
         var textureSymbols = new TextureSymbols();
-        foreach (var path in new List<string>() { "Images/carrot", "Images/cherries", "Images/grapes", "Images/watermelon", "Images/raspberry" }) {
-            textureSymbols.Add(Resources.Load<Texture2D>(path));
-        }
-
-        foreach (var path in new List<string>() { "Images/gamepad", "Images/pyramid", "Images/rocket", "Images/skateboard", "Images/spinner", "Images/gift", }) {
-            textureSymbols.Add(Resources.Load<Texture2D>(path));
-        }
-
-        foreach (var texture in textureSymbols.AllTextures()) {
-            textureSymbols.Select(texture);
-        }
-
+        paths.ForEach( t => textureSymbols.Add(Resources.Load<Texture2D>(t)));
+        textureSymbols.AllTextures().ForEach( t => textureSymbols.Select( t ) );
         return textureSymbols;
     }
 }
@@ -538,7 +555,8 @@ public static class Data {
     }
 
     public static void reset() {
-        Profile = Profile.defaultProfile();
+        Profile = new Profile();
+        Profile.defaultProfile();
         File.Delete(destination);
     }
 
@@ -550,7 +568,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles1231232.bin";
+    public static string destination = Application.persistentDataPath + "/profiles.bin";
 
 
 }

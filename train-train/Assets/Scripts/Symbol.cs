@@ -22,23 +22,28 @@ public class Symbol
     {
         texture = new STexture2D(t);
     }
+}
 
-    public bool IsEqual(Symbol symbol)
-    {
-        if (text == symbol.text && texture == symbol.texture) { return true; }
-        return false;
+[Serializable]
+public class SymbolMappingPickDescriptor{
+    string texturePath = null,
+            symbolText = null;
+
+    public SymbolMappingPickDescriptor(Symbol s) {
+        if( s.texture != null )
+            texturePath = s.texture.path;
+        else
+            symbolText = s.text;
     }
 
-    public bool IsEqual(Texture2D texture)
+    public bool mappsTo(Symbol symbol)
     {
-        if (this.texture == texture) { return true; }
-        return false;
-    }
-
-    public bool IsEqual(string text)
-    {
-        if (this.text == text) { return true; }
-        return false;
+        if( symbol.texture != null && texturePath != null )
+            return symbol.texture.path.Equals( texturePath );
+        else if( symbol.text != null && symbolText != null )
+            return symbol.text.Equals( symbolText );
+        else
+            return false;
     }
 }
 
@@ -46,43 +51,40 @@ public class Symbol
 public class SymbolMapping
 {
     Symbol matcher;
-    List<Selectable<Symbol> > matches = new List<Selectable<Symbol> >();
-
+    List<SymbolMappingPickDescriptor> matches = new List<SymbolMappingPickDescriptor>();
+    
     public SymbolMapping(Texture2D t) {
-        var symbol = new Selectable<Symbol>( new Symbol(t), false );
-        this.matcher = symbol.value;
-        matches.Add(symbol);
+        var symbol = new Symbol(t);
+        matcher = symbol;
+        Data.Profile.customMappings.addMatchee(symbol);
+        matches.Add( new SymbolMappingPickDescriptor(symbol) );
     }
 
-    public SymbolMapping(Symbol symbol, List<Selectable<Symbol> > symbols) {
-        this.matcher = symbol;
-        matches = symbols;
+    public SymbolMapping(Symbol symbol, List<SymbolMappingPickDescriptor> matche ) {
+        matcher = symbol;
+        matches = matche;
     }
 
-    public SymbolMapping( Symbol symbol, List<Symbol> symbols )
-    {
-        List<Selectable<Symbol> > tmp = new List<Selectable<Symbol> >();
-        symbols.ForEach( i => tmp.Add( new Selectable<Symbol>( i, false ) ) );
-        this.matcher = symbol;
-        matches = tmp;
+    public SymbolMapping( Symbol symbol, List<Symbol> symbols ) {
+        symbols.ForEach( i => {
+            Data.Profile.customMappings.addMatchee( i );
+            matches.Add( new SymbolMappingPickDescriptor(i) );
+        } );
+        matcher = symbol;
     }
 
     public SymbolMapping(int i) {
-        var symbol = new Selectable<Symbol>( new Symbol(i.ToString()), false);
-        this.matcher = symbol.value;
-        matches.Add(symbol);
+        var symbol = new Symbol(i.ToString());
+        matcher = symbol;
+        Data.Profile.customMappings.addMatchee( symbol );
+        matches.Add( new SymbolMappingPickDescriptor( symbol ) );
     }
 
     public SymbolMapping(string s) {
-        var symbol = new Selectable<Symbol>( new Symbol(s), false );
-        this.matcher = symbol.value;
-        matches.Add(symbol);
-    }
-
-    public SymbolMapping(string s, bool b) {
-        var symbol = new Selectable<Symbol>( new Symbol(s), b );
-        this.matcher = symbol.value;
-        matches.Add(symbol);
+        var symbol = new Symbol(s);
+        matcher = symbol;
+        Data.Profile.customMappings.addMatchee( symbol );
+        matches.Add( new SymbolMappingPickDescriptor( symbol ) );
     }
 
     public Symbol stationSymbol() {
@@ -90,52 +92,33 @@ public class SymbolMapping
     }
     
     public Symbol randomMatching() {
-        return matches[UnityEngine.Random.Range(0, matches.Count)].value;
-    }
-
-    public List<Selectable<Symbol> > passengerSymbols() {
-        return matches;
+        var randSymb = matches[UnityEngine.Random.Range(0, matches.Count)];
+        return Data.Profile.customMappings.getMatchee(randSymb);
     }
 
     public bool doesMatch(Symbol symbol) {
-        return matches.Any(s => symbol.IsEqual(s.value));
-    }
-
-    private List<Symbol> selected() {
-        return matches.FindAll( st => st.selected ).Select( a => a.value ).ToList();
+        return isSelected( symbol );
     }
 
     public bool IsSelectedEnough()
     {
-        return selected().Count > 0;
+        return matches.Count > 0;
     }
 
     public int NumberOfSelected()
     {
-        return selected().Count;
-    }
-
-    private Selectable<Symbol> find(Symbol symbol ) {
-        return matches.Find(p => p.value == symbol );
+        return matches.Count;
     }
 
     public void select(Symbol symbol) {
-        var found = find(symbol);
-        found.selected = true;
+        matches.Add( new SymbolMappingPickDescriptor( symbol ) );
     }
 
     public void deselect(Symbol symbol) {
-        var found = find(symbol);
-        found.selected = false;
+        matches.RemoveAll( t => t.mappsTo( symbol ) );
     }
 
     public bool isSelected(Symbol symbol) {
-        var found = find(symbol);
-        return found.selected;
-    }
-
-    public void remove(Symbol symbol) {
-        var found = find(symbol);
-        matches.Remove(found);
+        return matches.Any( t => t.mappsTo(symbol) );
     }
 }
