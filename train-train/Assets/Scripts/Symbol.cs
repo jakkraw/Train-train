@@ -119,6 +119,7 @@ public class SymbolMapping
     }
 
     public bool isSelected(Symbol symbol) {
+        if(matches == null) { return false; }
         return matches.Any( t => t.mappsTo(symbol) );
     }
 }

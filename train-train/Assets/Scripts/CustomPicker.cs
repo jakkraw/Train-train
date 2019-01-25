@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,7 +13,6 @@ public class CustomPicker : MonoBehaviour {
     public TextMeshProUGUI selectedCounterTextBox;
     public TMP_InputField input;
     private bool isInDeleteMode = false;
-
 
     public static void Modify(SymbolMapping pickable ) {
         CustomPicker.pickable = pickable;
@@ -39,7 +39,7 @@ public class CustomPicker : MonoBehaviour {
         SceneManager.LoadScene(PreviousScene);
     }
 
-    public bool isSelected(Symbol symbol ) {
+    public bool isSelected(Symbol symbol) {
         return pickable.isSelected(symbol);
     }
 
@@ -79,25 +79,17 @@ public class CustomPicker : MonoBehaviour {
     }
 
     private void HandlePictureAddition(string[] paths) {
-        List<Texture2D> textures = new List<Texture2D>();
-        for (int i = 0; i < paths.Length; i++ ){
-            Texture2D texture = NativeGallery.LoadImageAtPath(paths[i], 700, false);
-            if( texture != null)
-                textures.Add(texture);
-        }
+        var textures = paths.ToList().Select(path => NativeGallery.LoadImageAtPath(path, 700, false)).Where(t => t != null).ToList();
         HandlePictureAddition(textures);
     }
 
     private void HandlePictureAddition(List<Texture2D> textures) {
-        List<Symbol> mapping = new List<Symbol>();
-        textures.ForEach( t => mapping.Add( new Symbol(t)) );
+        var mapping = textures.Select(t => new Symbol(t)).ToList();
         HandleSymbolAddition(mapping);
     }
 
     public void HandleTextSymbolAddition() {
-        List<Symbol> mapping = new List<Symbol>();
-        mapping.Add(new Symbol( input.text ));
-        HandleSymbolAddition(mapping);
+        HandleSymbolAddition(new List<Symbol> { new Symbol(input.text) });
     }
 
     private void HandleSymbolAddition( List<Symbol> mapping ) {
@@ -107,8 +99,6 @@ public class CustomPicker : MonoBehaviour {
 
     private void DrawCustoms(List<Symbol> symbols) {
         selectedCounterTextBox.text = pickable.NumberOfSelected().ToString();
-        for (int i = 0; i < symbols.Count; i++) {
-            Instantiate( customTemplate, transform ).GetComponent<CustomMapping>().setSymbol(symbols[i]);
-        }
+        symbols.ForEach(s => Instantiate(customTemplate, transform).GetComponent<CustomMapping>().setSymbol(s));
     }
 }

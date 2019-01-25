@@ -5,13 +5,20 @@ using UnityEngine.UI;
 
 public class CustomSetMapping : SymbolRepresentation {
 
-    public Image maskSymbol, maskText;
+    public Image selection;
     private SymbolMapping mapping = null;
     private bool drawedMask = false;
+    private bool _selected = false;
+    private bool Selected { get { return _selected; } set {
+            _selected = value;
+            Color color = selection.color;
+            color.a = _selected ? 0.4f : 0.0f;
+            selection.color = color;
+        } }
 
     public void setMapping(SymbolMapping mapping){
         this.mapping = mapping;
-        setSymbol( mapping.stationSymbol() );
+        setSymbol(mapping.stationSymbol());
     }
 
     public void onClick() {
@@ -35,14 +42,7 @@ public class CustomSetMapping : SymbolRepresentation {
     }
 
     public void DrawSelected(bool selectedState) {
-        Color color = maskSymbol.color;
-        color.a = selectedState ? 0.4f : 0.0f;
-        maskSymbol.color = color;
-
-        color = maskText.color;
-        color.a = selectedState ? 0.4f : 0.0f;
-        maskText.color = color;
-
+        Selected = selectedState;
         drawedMask = true;
     }
 }

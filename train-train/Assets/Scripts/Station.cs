@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Station : MonoBehaviour
 {
-    private SymbolMapping mapping;
+    public SymbolMapping mapping;
     public SymbolRepresentation symbolRepresentation;
     public List<Seat> seats;
     public Transform middle;
@@ -26,6 +26,7 @@ public class Station : MonoBehaviour
 
     public bool doesMatch(Passenger passenger) {
         if(mapping == null) { return false; }
+        if(passenger.symbol == null) { return false; }
         return mapping.doesMatch(passenger.symbol);
     }
 }

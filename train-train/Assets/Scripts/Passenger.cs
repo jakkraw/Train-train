@@ -6,8 +6,8 @@ public class Passenger : MonoBehaviour
     public Animator animator;
     public RawImage image;
     public SymbolRepresentation symbolRepresentation;
-
-    public Symbol symbol { get { return symbolRepresentation.symbol; } set { symbolRepresentation.setSymbol(value); } }
+    private Symbol _symbol;
+    public Symbol symbol { get { return _symbol; } set { _symbol = value;  symbolRepresentation.setSymbol(value); } }
     public Texture2D texture { get { return image.texture as Texture2D; } set { image.texture = value; } }
     private bool _active = false;
     public bool active {

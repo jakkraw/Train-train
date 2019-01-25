@@ -26,7 +26,7 @@ public class Level {
                     continue;
                 }
 
-                var p = getNextPassenger();
+                var p = getNextPassenger(firstStation);
                 if (p != null) {
                     seat.Place(p);
                 }
@@ -47,7 +47,7 @@ public class Level {
         return s;
     }
 
-    public Symbol getRandomPossibleDestination() {
+    public Symbol getRandomPossibleDestination(Station station) {
         if (symbols.Count == 0) { return null; }
         var destinations = symbols.GetRange(0, symbols.Count);
         var next_index = System.Math.Min(Random.Range(0, destinations.Count), Random.Range(0, destinations.Count));
@@ -58,13 +58,13 @@ public class Level {
         return passengers[Random.Range(0, passengers.Count)];
     }
 
-    public Passenger getNextPassenger() {
+    public Passenger getNextPassenger(Station station) {
         var t = getRandomPassengerTexture();
         if (t == null) {
             return null;
         }
 
-        var d = getRandomPossibleDestination();
+        var d = getRandomPossibleDestination(station);
         if (d == null) {
             return null;
         }
@@ -88,7 +88,7 @@ public class Level {
                     continue;
                 }
 
-                var p = getNextPassenger();
+                var p = getNextPassenger(newstation);
                 if (p != null) {
                     seat.Place(p);
                 }

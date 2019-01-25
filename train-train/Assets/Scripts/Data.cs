@@ -534,6 +534,7 @@ public class Profile {
 
 public static class Data {
     static Data() {
+        destination = Application.persistentDataPath + "/profiles51.bin";
         load();
     }
 
@@ -568,7 +569,7 @@ public static class Data {
     }
 
     public static Profile Profile;
-    public static string destination = Application.persistentDataPath + "/profiles.bin";
+    public static string destination;
 
 
 }

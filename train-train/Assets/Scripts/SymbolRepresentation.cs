@@ -10,7 +10,7 @@ public class SymbolRepresentation : MonoBehaviour
     public Text text;
     public RawImage image;
     public Symbol symbol;
-
+   
     public void setSymbol(Symbol symbol)
     {
         Debug.Assert(symbol.text != null ^ symbol.texture != null, "Bad sybol state!" );
